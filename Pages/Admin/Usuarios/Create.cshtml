@@ -1,0 +1,112 @@
+﻿@page
+@model BarberPro.Pages.Admin.Usuarios.CreateModel
+@{
+    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "Crear Usuario";
+}
+
+<div class="max-w-2xl mx-auto space-y-6">
+    <div class="flex items-center gap-4">
+        <a href="/Admin/Usuarios/Index" class="text-gray-400 hover:text-gold transition">
+            <i class="fas fa-arrow-left text-xl"></i>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-100">Crear Nuevo Usuario</h1>
+            <p class="text-gray-400 mt-1">Completa la información del usuario</p>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-xl p-8">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-user mr-2 text-gold"></i>Nombre Completo
+                </label>
+                <input asp-for="NombreCompleto" type="text" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 placeholder-gray-500 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" placeholder="Ej: Juan Pérez" required />
+                <span asp-validation-for="NombreCompleto" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-envelope mr-2 text-gold"></i>Correo Electrónico
+                </label>
+                <input asp-for="Correo" type="email" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 placeholder-gray-500 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" placeholder="ejemplo@correo.com" required autocomplete="off" />
+                <span asp-validation-for="Correo" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-phone mr-2 text-gold"></i>Teléfono
+                </label>
+                <input asp-for="Telefono" type="tel" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 placeholder-gray-500 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" placeholder="(555) 123-4567" />
+                <span asp-validation-for="Telefono" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-lock mr-2 text-gold"></i>Contraseña
+                </label>
+                <input asp-for="NewPassword" type="password" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 placeholder-gray-500 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" placeholder="Mínimo 6 caracteres" required autocomplete="new-password" />
+                <span asp-validation-for="NewPassword" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-user-tag mr-2 text-gold"></i>Rol
+                </label>
+                <select asp-for="RolID" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required>
+                    <option value="">Selecciona un rol</option>
+                    @foreach(var rol in Model.Roles)
+                    {
+                        <option value="@rol.RolID">@rol.NombreRol</option>
+                    }
+                </select>
+                <span asp-validation-for="RolID" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-image mr-2 text-gold"></i>Foto de Perfil
+                </label>
+                <div class="flex items-center gap-4">
+                    <div id="preview" class="w-20 h-20 rounded-full bg-slate-700 border-2 border-slate-600 flex items-center justify-center overflow-hidden">
+                        <i class="fas fa-user text-3xl text-gray-500"></i>
+                    </div>
+                    <div class="flex-1">
+                        <input asp-for="FotoFile" type="file" accept="image/*" id="photoInput" class="hidden" />
+                        <label for="photoInput" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-gray-200 rounded-lg transition">
+                            <i class="fas fa-upload"></i>Seleccionar Foto
+                        </label>
+                        <p class="text-xs text-gray-400 mt-1">JPG, PNG o GIF (máx. 2MB)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-4 pt-6 border-t border-slate-700">
+                <button type="submit" class="flex-1 bg-gold hover:bg-gold-dark text-slate-900 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-save"></i>Crear Usuario
+                </button>
+                <a href="/Admin/Usuarios/Index" class="flex-1 bg-slate-700 hover:bg-slate-600 text-gray-100 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-times-circle"></i>Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('photoInput')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview').innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover" />';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,219 @@
+/* admin.css - Black & Gold theme */
+
+:root{
+  --black-1: #0a0a0a;
+  --black-2: #1a1a1a;
+  --gray-3: #333333;
+  --beige: #f5f1e8;
+  --gold: #d4a624;
+  --gold-2: #dbb13b;
+  --danger: #e74c3c;
+}
+
+/* Body / background */
+.bg-dark-admin { background: var(--black-1); color: var(--beige); }
+
+/* ensure regular form-control inherits dark theme */
+.form-control, .form-select, .form-control-dark {
+  background: #1a1a1a !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  color: var(--beige) !important;
+}
+
+/* text caret color */
+.form-control, .form-select, .form-control-dark, input, textarea {
+  caret-color: var(--beige) !important;
+}
+
+/* placeholder color */
+.form-control::placeholder, .form-control-dark::placeholder, .form-select::placeholder {
+  color: rgba(245,241,232,0.5) !important;
+}
+
+/* fix browser autofill text color and background */
+input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
+  -webkit-text-fill-color: var(--beige) !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset !important;
+}
+
+/* password specific - ensure text remains visible while typing */
+input[type="password"], input[type="text"], input[type="email"] {
+  color: var(--beige) !important;
+}
+
+/* Sidebar */
+#sidebar {
+  width: 260px;
+  background: var(--black-2);
+  border-right: 1px solid rgba(255,255,255,0.03);
+}
+.sidebar-brand img.sidebar-logo{
+  width:44px; height:44px; object-fit:cover; border-radius:8px; border:2px solid rgba(212,166,36,0.12);
+}
+.brand-title { font-weight:700; color:var(--beige); font-size:1.05rem; }
+.text-gold { color:var(--gold); }
+
+/* Topbar */
+.topbar { background: var(--black-2); border-bottom:1px solid rgba(255,255,255,0.03); }
+.avatar { width:40px; height:40px; }
+
+/* Buttons */
+.btn-gold {
+  background: linear-gradient(90deg,var(--gold),var(--gold-2));
+  color: #0a0a0a;
+  border: none;
+  box-shadow: 0 6px 18px rgba(212,166,36,0.10);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.btn-gold:hover { filter:brightness(.95); }
+
+.btn-dark-custom {
+  background: #222;
+  border: 1px solid #444;
+  color: #ddd;
+  padding: 10px 18px;
+  border-radius: 8px;
+}
+.btn-dark-custom:hover { background: #2c2c2c; }
+
+/* Cards and tables */
+.card-admin {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: 12px;
+  color:var(--beige);
+}
+
+.table-admin th {
+  background: rgba(255,255,255,0.02);
+  color:var(--beige);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.table-admin td { border-bottom: 1px solid rgba(255,255,255,0.02); }
+
+/* Badges */
+.badge-role { background: transparent; color: var(--gold); border: 1px solid rgba(212,166,36,0.18); padding:4px 8px; border-radius:999px; font-weight:600; }
+
+/* FORM Black & Gold */
+.form-card {
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.form-card label {
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 6px;
+}
+
+.form-card input,
+.form-card select,
+.form-card textarea {
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #eee;
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+
+.form-card input:focus,
+.form-card select:focus {
+    background: #1f1f1f;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 0.2rem rgba(212,166,36,0.25);
+}
+
+/* Button base for admin theme */
+.btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+  text-decoration: none;
+  border: none;
+}
+
+/* Dark button */
+.btn-dark {
+  background: var(--gray-3);
+  color: var(--beige);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.btn-dark:hover {
+  background: #444;
+  color: var(--beige);
+  transform: translateY(-1px);
+}
+
+/* Red button */
+.btn-red {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+}
+.btn-red:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}
+
+/* Small helpers */
+.table-admin tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgba(212,166,36,0.12);
+  color: var(--beige);
+  border: 1px solid rgba(212,166,36,0.14);
+}
+
+.alert-success {
+  background: linear-gradient(90deg, rgba(212,166,36,0.12), rgba(212,166,36,0.06));
+}
+
+/* Ensure text and link visibility across admin area */
+#admin-root, .admin-container, .content-area, .main-content, .card-admin, .form-card {
+  color: var(--beige) !important;
+}
+
+#admin-root a, .nav-link, .menu a, .sidebar a, .brand-title {
+  color: var(--beige) !important;
+}
+
+#sidebar .nav-link:hover, .btn-gold:hover {
+  color: #0a0a0a !important;
+}
+
+/* Override any Bootstrap text-dark within admin */
+.admin-container .text-dark, #admin-root .text-dark {
+  color: var(--beige) !important;
+}
+
+/* Muted text in admin */
+.admin-container .text-muted, #admin-root .text-muted {
+  color: rgba(245,241,232,0.65) !important;
+}
+
+/* Table text */
+.table-admin th, .table-admin td {
+  color: var(--beige) !important;
+}
+
+/* Inputs and selects ensure visible text */
+input, textarea, select, .form-control, .form-control-dark {
+  color: var(--beige) !important;
+}
+
+/* Responsive */
+@media (max-width: 991px){
+  #sidebar { display:none; }
+}

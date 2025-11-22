@@ -1,0 +1,145 @@
+﻿@model dynamic
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    ViewData["ShowNavbar"] = false;
+}
+
+<div class="min-h-[80vh] flex items-center justify-center py-12">
+    <div class="w-full max-w-md">
+        <!-- Card Principal -->
+        <div class="card bg-base-200 shadow-2xl border border-base-300">
+            <div class="card-body">
+                <!-- Logo/Header -->
+                <div class="text-center mb-6">
+                    <div class="avatar placeholder mb-4">
+                        <div class="bg-primary text-primary-content rounded-full w-20 ring ring-primary ring-offset-base-100 ring-offset-4">
+                            <span class="text-3xl font-bold">BP</span>
+                        </div>
+                    </div>
+                    <h2 class="text-3xl font-bold">
+                        <span class="text-primary">Barber</span><span>Pro</span>
+                    </h2>
+                    <p class="text-sm opacity-60 mt-2">Inicia sesión en tu cuenta</p>
+                </div>
+
+                <!-- Alerts -->
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-error shadow-lg mb-4">
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>@ViewBag.Error</span>
+                        </div>
+                    </div>
+                }
+
+                @if (ViewBag.Message != null)
+                {
+                    <div class="alert alert-success shadow-lg mb-4">
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>@ViewBag.Message</span>
+                        </div>
+                    </div>
+                }
+
+                <!-- Formulario -->
+                <form asp-controller="Login" asp-action="Login" method="post" class="space-y-4">
+                    <!-- Email -->
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-semibold text-primary">Correo Electrónico</span>
+                        </label>
+                        <label class="input-group">
+                            <span class="bg-base-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                </svg>
+                            </span>
+                            <input type="email" name="correo" placeholder="correo@ejemplo.com" 
+                                   class="input input-bordered w-full" required />
+                        </label>
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-semibold text-primary">Contraseña</span>
+                        </label>
+                        <label class="input-group">
+                            <span class="bg-base-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </span>
+                            <input type="password" name="contrasena" placeholder="••••••••" 
+                                   class="input input-bordered w-full" required />
+                        </label>
+                        <label class="label">
+                            <span class="label-text-alt"></span>
+                            <a href="#" class="label-text-alt link link-hover text-primary">¿Olvidaste tu contraseña?</a>
+                        </label>
+                    </div>
+
+                    <!-- Remember me -->
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-3">
+                            <input type="checkbox" class="checkbox checkbox-primary" />
+                            <span class="label-text">Recordarme</span>
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-control mt-6">
+                        <button type="submit" class="btn btn-primary w-full gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            Iniciar Sesión
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Divider -->
+                <div class="divider">O</div>
+
+                <!-- Register Link -->
+                <div class="text-center">
+                    <p class="text-sm opacity-70">
+                        ¿No tienes una cuenta? 
+                        <a asp-controller="Login" asp-action="Register" class="link link-primary font-semibold">
+                            Regístrate aquí
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to home -->
+        <div class="text-center mt-6">
+            <a asp-controller="Home" asp-action="Inicio" class="btn btn-ghost btn-sm gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Volver al inicio
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-focus en el primer input
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstInput = document.querySelector('input[name="correo"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+    </script>
+}

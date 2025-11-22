@@ -1,0 +1,87 @@
+﻿@page
+@model BarberPro.Pages.Admin.HorariosBarbero.IndexModel
+@{
+    ViewData["Title"] = "Horarios de Barberos";
+    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+}
+
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-100">Horarios de Barberos</h1>
+            <p class="text-gray-400 mt-1">Gestiona los horarios disponibles de cada barbero</p>
+        </div>
+        <a href="/Admin/HorariosBarbero/Create" class="btn bg-gold hover:bg-gold-dark text-slate-900 border-none gap-2">
+            <i class="fas fa-plus"></i>Nuevo Horario
+        </a>
+    </div>
+
+    <div class="glass-card rounded-xl p-4">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-search text-gray-400"></i>
+            <input type="text" placeholder="Buscar horario..." class="flex-1 bg-transparent border-none outline-none text-gray-100 placeholder-gray-500" />
+        </div>
+    </div>
+
+    @if (Model.Horarios != null && Model.Horarios.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach(var horario in Model.Horarios)
+            {
+                <div class="glass-card rounded-xl p-6 hover:border-gold transition-all duration-300 group">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-slate-900">
+                                <i class="fas fa-calendar-alt text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-100 group-hover:text-gold transition">@horario.Barbero?.Usuario?.NombreCompleto</h3>
+                                <p class="text-xs text-gray-400">ID: @horario.HorarioID</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded-full @(horario.Disponible ? "bg-green-900/30 text-green-400" : "bg-red-900/30 text-red-400")">
+                            @(horario.Disponible ? "Disponible" : "Ocupado")
+                        </span>
+                    </div>
+
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-calendar text-gold"></i>
+                            <div>
+                                <p class="text-xs text-gray-400">Fecha</p>
+                                <p class="text-sm text-gray-200">@horario.Fecha.ToString("dd/MM/yyyy")</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-clock text-gold"></i>
+                            <div>
+                                <p class="text-xs text-gray-400">Horario</p>
+                                <p class="text-sm text-gray-200">@horario.HoraInicio.ToString(@"hh\:mm") - @horario.HoraFin.ToString(@"hh\:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-4 border-t border-slate-700">
+                        <a href="/Admin/HorariosBarbero/Edit?id=@horario.HorarioID" class="flex-1 btn btn-sm bg-slate-700 hover:bg-slate-600 text-gray-200 border-none gap-2">
+                            <i class="fas fa-edit"></i>Editar
+                        </a>
+                        <a href="/Admin/HorariosBarbero/Delete?id=@horario.HorarioID" class="btn btn-sm bg-red-600 hover:bg-red-700 text-white border-none gap-2">
+                            <i class="fas fa-trash"></i>Eliminar
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="glass-card rounded-xl p-12 text-center">
+            <i class="fas fa-calendar-times text-6xl text-gray-600 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-300 mb-2">No hay horarios registrados</h3>
+            <p class="text-gray-400 mb-6">Comienza agregando horarios para tus barberos</p>
+            <a href="/Admin/HorariosBarbero/Create" class="btn bg-gold hover:bg-gold-dark text-slate-900 border-none gap-2">
+                <i class="fas fa-plus"></i>Crear Horario
+            </a>
+        </div>
+    }
+</div>

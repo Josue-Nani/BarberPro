@@ -1,0 +1,214 @@
+﻿@page
+@model BarberPro.Pages.ReservarModel
+@{
+    ViewData["Title"] = "Reservar Cita";
+    ViewData["ShowNavbar"] = true;
+}
+
+<!-- Container Principal -->
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+
+    <!-- Header Premium -->
+    <div class="text-center mb-12 animate-fade-in-up">
+        <div class="inline-block mb-6">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+        </div>
+        <h1 class="text-5xl md:text-6xl font-black mb-4">
+            <span class="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-300% animate-gradient">
+                Reserva tu Cita
+            </span>
+        </h1>
+        <p class="text-xl opacity-70">Elige tu servicio, barbero y horario preferido</p>
+        
+        @if (!string.IsNullOrEmpty(Model.Mensaje))
+        {
+            <div class="alert alert-error mt-6 shadow-lg max-w-2xl mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>@Model.Mensaje</span>
+            </div>
+        }
+        
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success mt-6 shadow-lg max-w-2xl mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+        }
+    </div>
+
+    <!-- Steps Progress Premium -->
+    <div class="mb-12">
+        <ul class="steps steps-horizontal w-full" id="progressSteps">
+            <li class="step" id="step1" data-content="1">
+                <span class="hidden sm:inline">Servicio</span>
+            </li>
+            <li class="step" id="step2" data-content="2">
+                <span class="hidden sm:inline">Barbero</span>
+            </li>
+            <li class="step" id="step3" data-content="3">
+                <span class="hidden sm:inline">Fecha & Hora</span>
+            </li>
+            <li class="step" id="step4" data-content="4">
+                <span class="hidden sm:inline">Confirmar</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left Column - Selection Steps -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- Paso 1: Seleccionar Servicio -->
+            <div id="section-servicio" class="animate-fade-in-up">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center font-black text-black">1</div>
+                    <h2 class="text-3xl font-black text-primary">Selecciona un Servicio</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="servicios-grid">
+                    @foreach (var servicio in Model.Servicios)
+                    {
+                        <div class="premium-card group cursor-pointer servicio-card" data-servicio-id="@servicio.ServicioID" data-servicio-nombre="@servicio.Nombre" data-servicio-precio="@servicio.Precio" data-servicio-duracion="@servicio.DuracionMinutos">
+                            <div class="card-body">
+                                <div class="flex items-start justify-between mb-3">
+                                    <h3 class="card-title text-xl">@servicio.Nombre</h3>
+                                    <div class="badge badge-primary badge-lg shadow-lg hidden selected-badge">Seleccionado</div>
+                                </div>
+                                <p class="opacity-70 mb-4">@servicio.Descripcion</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-3xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                        $@servicio.Precio
+                                    </span>
+                                    <span class="text-sm opacity-60 flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        @servicio.DuracionMinutos min
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Paso 2: Seleccionar Barbero -->
+            <div id="section-barbero" class="animate-fade-in-up hidden">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center font-black text-black">2</div>
+                    <h2 class="text-3xl font-black text-primary">Selecciona tu Barbero</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="barberos-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Paso 3: Seleccionar Fecha y Hora -->
+            <div id="section-horario" class="animate-fade-in-up hidden">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center font-black text-black">3</div>
+                    <h2 class="text-3xl font-black text-primary">Selecciona Fecha y Hora</h2>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="fechaInput" class="label">
+                        <span class="label-text text-lg font-semibold">Fecha</span>
+                    </label>
+                    <input type="date" id="fechaInput" class="input input-bordered input-primary w-full max-w-xs" />
+                </div>
+
+                <div id="horarios-container">
+                    <div id="horarios-loading" class="hidden text-center py-8">
+                        <span class="loading loading-spinner loading-lg text-primary"></span>
+                        <p class="mt-4 opacity-70">Cargando horarios disponibles...</p>
+                    </div>
+                    
+                    <div id="horarios-empty" class="hidden text-center py-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto opacity-30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-lg font-semibold opacity-70">Este barbero no tiene horarios disponibles actualmente</p>
+                        <p class="opacity-50 mt-2">Intenta seleccionar otra fecha</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="horarios-grid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column - Summary Card -->
+        <div class="lg:col-span-1">
+            <div class="card bg-base-200 shadow-2xl sticky top-8">
+                <div class="card-body">
+                    <h3 class="card-title text-2xl mb-6 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Resumen de Reserva
+                    </h3>
+
+                    <div class="space-y-4">
+                        <!-- Servicio -->
+                        <div class="p-4 bg-base-100 rounded-xl">
+                            <p class="text-sm opacity-60 mb-1">Servicio</p>
+                            <p id="summary-servicio" class="font-bold text-lg opacity-40">No seleccionado</p>
+                            <p id="summary-precio" class="text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mt-2 hidden"></p>
+                        </div>
+
+                        <!-- Barbero -->
+                        <div class="p-4 bg-base-100 rounded-xl">
+                            <p class="text-sm opacity-60 mb-1">Barbero</p>
+                            <p id="summary-barbero" class="font-bold text-lg opacity-40">No seleccionado</p>
+                        </div>
+
+                        <!-- Fecha y Hora -->
+                        <div class="p-4 bg-base-100 rounded-xl">
+                            <p class="text-sm opacity-60 mb-1">Fecha y Hora</p>
+                            <p id="summary-fecha" class="font-bold text-lg opacity-40">No seleccionado</p>
+                            <p id="summary-hora" class="text-primary font-semibold hidden"></p>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Button -->
+                    <form method="post" id="confirmForm" class="mt-6">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="ServicioID" id="form-servicio" />
+                        <input type="hidden" name="BarberoID" id="form-barbero" />
+                        <input type="hidden" name="Fecha" id="form-fecha" />
+                        <input type="hidden" name="HorarioID" id="form-horario" />
+                        <input type="hidden" name="HoraInicio" id="form-hora-inicio" />
+                        <input type="hidden" name="HoraFin" id="form-hora-fin" />
+                        
+                        <button type="submit" id="confirmButton" class="btn-premium w-full" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Confirmar Reserva</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="/js/reservar-spa.js"></script>
+}

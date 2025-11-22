@@ -1,0 +1,135 @@
+/* Styles adapted from provided Tailwind CSS variables */
+:root {
+  --background: 0 0% 4%;
+  --foreground: 40 10% 95%;
+
+  --gradient-gold: linear-gradient(135deg, hsl(43 74% 49%), hsl(38 70% 55%));
+  --shadow-gold: 0 10px 40px -10px hsl(43 74% 49% / 0.4);
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.hero-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-center {
+  text-align: center;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.brand-circle {
+  width: 6rem;
+  height: 6rem;
+  margin: 0 auto 1rem;
+  border-radius: 9999px;
+  background: var(--gradient-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-gold);
+}
+
+.brand-circle-small {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  border-radius: 9999px;
+  background: var(--gradient-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-gold);
+}
+
+.scissors {
+  width: 3rem;
+  height: 3rem;
+  color: hsl(0 0% 10%);
+}
+
+.hero-title {
+  margin-bottom: 1rem;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.hero-sub {
+  font-size: 1.125rem;
+  color: hsl(0 0% 70%);
+  max-width: 36rem;
+  margin: 0.5rem auto 1.5rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn {
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: var(--gradient-gold);
+  color: hsl(0 0% 10%);
+  box-shadow: var(--shadow-gold);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-primary:hover { transform: scale(1.02); opacity: 0.95; }
+
+.btn-outline {
+  border: 2px solid hsl(var(--foreground) / 0.15);
+  color: var(--foreground);
+  background: transparent;
+}
+
+.btn-outline:hover { background: rgba(255,255,255,0.03); transform: scale(1.02); }
+
+/* Card and form styles */
+.card {
+  padding: 2rem;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
+  border-radius: 0.75rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: hsl(var(--foreground));
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: hsl(var(--foreground));
+}
+
+.form-group { margin-bottom: 1rem; }
+
+.form-foot { display:flex; justify-content: flex-end; margin-bottom: 1rem; }
+
+.forgot { color: rgba(255,255,255,0.8); text-decoration: none; }
+
+.muted { color: rgba(255,255,255,0.7); }
+
+.link { color: var(--foreground); font-weight: 600; }

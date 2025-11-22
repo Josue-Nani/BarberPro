@@ -1,0 +1,104 @@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!-- Premium Navbar -->
+<div class="navbar bg-base-200/80 backdrop-blur-lg shadow-lg sticky top-0 z-50 border-b border-base-300/50">
+    <div class="navbar-start">
+        <!-- Mobile menu -->
+        <div class="dropdown">
+            <label tabindex="0" class="btn btn-ghost lg:hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </label>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-200/90 backdrop-blur-lg rounded-box w-52 border border-base-300/50">
+                <li><a asp-controller="Home" asp-action="Inicio">Inicio</a></li>
+                <li><a asp-controller="Home" asp-action="Index">Servicios</a></li>
+                @if (HttpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated == true)
+                {
+                    <li><a href="~/Reservar">Reservar Cita</a></li>
+                }
+            </ul>
+        </div>
+        
+        <!-- Logo -->
+        <a class="btn btn-ghost normal-case text-xl lg:text-2xl font-bold" asp-controller="Home" asp-action="Inicio">
+            <span class="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Barber</span><span class="text-base-content">Pro</span>
+        </a>
+    </div>
+    
+    <!-- Desktop menu -->
+    <div class="navbar-center hidden lg:flex">
+        <ul class="menu menu-horizontal px-1 gap-2">
+            <li><a asp-controller="Home" asp-action="Inicio" class="hover:text-primary transition-colors">Inicio</a></li>
+            <li><a asp-controller="Home" asp-action="Index" class="hover:text-primary transition-colors">Servicios</a></li>
+            @if (HttpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated == true)
+            {
+                <li><a href="~/Reservar" class="hover:text-primary transition-colors">Reservar Cita</a></li>
+            }
+        </ul>
+    </div>
+    
+    <div class="navbar-end gap-2">
+        @if (HttpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated == true)
+        {
+            var name = HttpContextAccessor.HttpContext.User.Identity.Name ?? HttpContextAccessor.HttpContext.Session.GetString("Usuario");
+            var roleClaim = HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            
+            <!-- User Info Badge -->
+            <div class="flex items-center gap-3 bg-base-200/50 backdrop-blur-lg rounded-full px-4 py-2 border border-primary/30">
+                <!-- Avatar -->
+                <div class="avatar placeholder">
+                    <div class="bg-gradient-to-br from-primary to-accent text-base-100 rounded-full w-10">
+                        <span class="text-lg font-bold">@(name?.Substring(0, 1).ToUpper())</span>
+                    </div>
+                </div>
+                
+                <!-- User Name (hidden on mobile) -->
+                <div class="hidden md:flex flex-col">
+                    <span class="text-sm font-semibold text-primary">@name</span>
+                    <span class="text-xs opacity-60">@roleClaim</span>
+                </div>
+                
+                <!-- Divider -->
+                <div class="divider divider-horizontal mx-0 hidden md:flex"></div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                    @if (roleClaim == "Administrador")
+                    {
+                        <a href="/Admin/Usuarios/Index" 
+                           class="btn btn-ghost btn-sm btn-circle tooltip tooltip-bottom" 
+                           data-tip="Panel Admin">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </a>
+                    }
+                    
+                    <a href="/MiPerfil" 
+                       class="btn btn-ghost btn-sm btn-circle tooltip tooltip-bottom" 
+                       data-tip="Mi Perfil">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </a>
+                    
+                    <a href="/Logout/Index" 
+                       class="btn btn-ghost btn-sm btn-circle tooltip tooltip-bottom text-error hover:bg-error/20" 
+                       data-tip="Cerrar Sesión">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <a asp-controller="Login" asp-action="Login" class="btn btn-ghost btn-sm">Iniciar sesión</a>
+            <a asp-controller="Login" asp-action="Register" class="btn btn-primary btn-sm">Registrarse</a>
+        }
+    </div>
+</div>

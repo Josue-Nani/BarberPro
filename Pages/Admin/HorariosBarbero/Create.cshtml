@@ -1,0 +1,91 @@
+﻿@page
+@model BarberPro.Pages.Admin.HorariosBarbero.CreateModel
+@{
+    ViewData["Title"] = "Crear Horario";
+    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+}
+
+<div class="max-w-2xl mx-auto space-y-6">
+    <div class="flex items-center gap-4">
+        <a href="/Admin/HorariosBarbero/Index" class="text-gray-400 hover:text-gold transition">
+            <i class="fas fa-arrow-left text-xl"></i>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-100">Crear Nuevo Horario</h1>
+            <p class="text-gray-400 mt-1">Asigna un horario disponible a un barbero</p>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-xl p-8">
+        <form method="post" class="space-y-6">
+            <div asp-validation-summary="All" class="text-red-400 text-sm"></div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-user-tie mr-2 text-gold"></i>Barbero
+                </label>
+                <select asp-for="Horario.BarberoID" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required>
+                    <option value="">Selecciona un barbero</option>
+                    @foreach(var barbero in Model.Barberos)
+                    {
+                        <option value="@barbero.BarberoID">@barbero.Usuario?.NombreCompleto</option>
+                    }
+                </select>
+                <span asp-validation-for="Horario.BarberoID" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-calendar mr-2 text-gold"></i>Fecha
+                </label>
+                <input asp-for="Horario.Fecha" type="date" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required />
+                <span asp-validation-for="Horario.Fecha" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                        <i class="fas fa-clock mr-2 text-gold"></i>Hora de Inicio
+                    </label>
+                    <input asp-for="Horario.HoraInicio" type="time" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required />
+                    <span asp-validation-for="Horario.HoraInicio" class="text-red-400 text-sm mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                        <i class="fas fa-clock mr-2 text-gold"></i>Hora de Fin
+                    </label>
+                    <input asp-for="Horario.HoraFin" type="time" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required />
+                    <span asp-validation-for="Horario.HoraFin" class="text-red-400 text-sm mt-1 block"></span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between p-4 bg-slate-700/50 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-toggle-on text-gold text-2xl"></i>
+                    <div>
+                        <p class="text-sm font-medium text-gray-200">Disponibilidad</p>
+                        <p class="text-xs text-gray-400">Horario disponible para reservas</p>
+                    </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input asp-for="Horario.Disponible" type="checkbox" class="sr-only peer" checked />
+                    <div class="w-14 h-7 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gold/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gold"></div>
+                </label>
+            </div>
+
+            <div class="flex gap-4 pt-6 border-t border-slate-700">
+                <button type="submit" class="flex-1 bg-gold hover:bg-gold-dark text-slate-900 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-save"></i>Crear Horario
+                </button>
+                <a href="/Admin/HorariosBarbero/Index" class="flex-1 bg-slate-700 hover:bg-slate-600 text-gray-100 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-times-circle"></i>Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,92 @@
+/* Black & Gold theme for Reservar page */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root{
+  --bg-dark: #0a0a0a;
+  --panel: #111111;
+  --muted: #9b9388;
+  --cream: #f5f1e8;
+  --gold: #d4a624;
+  --gold-2: #dbb13b;
+  --accent: #d4a624;
+  --card-border: rgba(255,255,255,0.03);
+  --radius: 12px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;background:var(--bg-dark);color:var(--cream)}
+
+.container{max-width:1100px;margin:28px auto;padding:0 18px}
+.header-site{padding:12px 0;text-align:center}
+.header-site h1{margin:0;color:var(--cream);font-weight:700}
+
+.title{font-weight:800;font-size:32px;color:var(--cream);margin:0 0 6px}
+.subtitle{color:var(--muted);margin-bottom:20px}
+
+/* layout grid */
+.main-grid{display:grid;grid-template-columns:2fr 1fr;gap:22px;align-items:start}
+@media(max-width:992px){.main-grid{grid-template-columns:1fr}}
+
+/* panels and cards */
+.panel{
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  border-radius:var(--radius);
+  padding:18px;
+  border:1px solid var(--card-border);
+  box-shadow:0 10px 30px rgba(0,0,0,0.6)
+}
+.panel h3{margin:0 0 12px;color:var(--cream);font-size:16px}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{
+  padding:12px;
+  border-radius:10px;
+  background: rgba(10,10,10,0.6);
+  border: 1px solid rgba(255,255,255,0.02);
+  cursor:pointer;
+  transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease
+}
+.card:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 12px 30px rgba(212,166,36,0.06)}
+.card.selected{border-color:var(--gold);box-shadow:0 16px 36px rgba(212,166,36,0.08)}
+.card-header{display:flex;justify-content:space-between;align-items:center}
+.card h3{margin:0;font-size:15px;color:var(--cream)}
+.price{color:var(--gold);font-weight:700}
+.description{color:var(--muted);font-size:13px;margin-top:8px}
+
+/* barber */
+.barbero-card{display:flex;gap:12px;align-items:center}
+.barbero-img{width:56px;height:56px;border-radius:999px;object-fit:cover;border:2px solid rgba(212,166,36,0.08)}
+.barbero-info h3{margin:0;color:var(--cream);font-size:15px}
+.barbero-info p{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+/* date & times */
+.input-date{
+  padding:10px 12px;
+  border-radius:8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(10,10,10,0.6);
+  color: var(--cream);
+  width:220px
+}
+
+.horarios-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:12px}
+.card-small{padding:10px;border-radius:8px;text-align:center;border:1px solid rgba(255,255,255,0.02);background: rgba(10,10,10,0.5);color:var(--cream);transition:transform .12s}
+.card-small:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,0.6)}
+.card-small.selected{background:linear-gradient(90deg,var(--gold),var(--gold-2));color:#0a0a0a;border-color:var(--gold)}
+
+/* summary */
+.summary-box{border:1px solid rgba(255,255,255,0.02);padding:12px;border-radius:8px;background:rgba(10,10,10,0.5)}
+.btn-confirmar{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(90deg,var(--gold),var(--gold-2));color:#0a0a0a;font-weight:800;cursor:pointer}
+.btn-confirmar:hover{filter:brightness(.95);transform:translateY(-2px)}
+.mensaje{color:var(--gold);margin-top:12px;text-align:center}
+
+/* sticky sidebar */
+.sticky-top{position:sticky;top:22px}
+
+/* spacing helpers */
+.space-y-8 > * + *{margin-top:20px}
+.text-center{text-align:center}
+.mb-12{margin-bottom:48px}
+
+/* small screens */
+@media(max-width:540px){.input-date{width:100%}}

@@ -1,0 +1,76 @@
+﻿@page
+@model BarberPro.Pages.Admin.HorariosBarbero.DeleteModel
+@{
+    ViewData["Title"] = "Eliminar Horario";
+    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+}
+
+<div class="max-w-2xl mx-auto space-y-6">
+    <div class="flex items-center gap-4">
+        <a href="/Admin/HorariosBarbero/Index" class="text-gray-400 hover:text-gold transition">
+            <i class="fas fa-arrow-left text-xl"></i>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-100">Eliminar Horario</h1>
+            <p class="text-gray-400 mt-1">Confirma la eliminación del horario</p>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-xl p-8">
+        <div class="flex items-start gap-4 p-4 bg-red-900/20 border border-red-700/30 rounded-lg mb-6">
+            <i class="fas fa-exclamation-triangle text-red-400 text-2xl mt-1"></i>
+            <div>
+                <h3 class="text-lg font-semibold text-red-300 mb-1">¿Estás seguro?</h3>
+                <p class="text-sm text-red-200">Esta acción no se puede deshacer. El horario será eliminado permanentemente.</p>
+            </div>
+        </div>
+
+        <div class="space-y-4 mb-6">
+            <div class="flex items-center gap-3 p-4 bg-slate-700/50 rounded-lg">
+                <i class="fas fa-user-tie text-gold text-xl"></i>
+                <div>
+                    <p class="text-xs text-gray-400">Barbero</p>
+                    <p class="text-sm font-medium text-gray-200">@Model.Horario.Barbero?.Usuario?.NombreCompleto</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 p-4 bg-slate-700/50 rounded-lg">
+                <i class="fas fa-calendar text-gold text-xl"></i>
+                <div>
+                    <p class="text-xs text-gray-400">Fecha</p>
+                    <p class="text-sm font-medium text-gray-200">@Model.Horario.Fecha.ToString("dd/MM/yyyy")</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 p-4 bg-slate-700/50 rounded-lg">
+                <i class="fas fa-clock text-gold text-xl"></i>
+                <div>
+                    <p class="text-xs text-gray-400">Horario</p>
+                    <p class="text-sm font-medium text-gray-200">@Model.Horario.HoraInicio.ToString(@"hh\:mm") - @Model.Horario.HoraFin.ToString(@"hh\:mm")</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 p-4 bg-slate-700/50 rounded-lg">
+                <i class="fas fa-info-circle text-gold text-xl"></i>
+                <div>
+                    <p class="text-xs text-gray-400">Estado</p>
+                    <p class="text-sm font-medium @(Model.Horario.Disponible ? "text-green-400" : "text-red-400")">
+                        @(Model.Horario.Disponible ? "Disponible" : "Ocupado")
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post">
+            <input type="hidden" asp-for="Horario.HorarioID" />
+            <div class="flex gap-4 pt-6 border-t border-slate-700">
+                <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-trash"></i>Eliminar Horario
+                </button>
+                <a href="/Admin/HorariosBarbero/Index" class="flex-1 bg-slate-700 hover:bg-slate-600 text-gray-100 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-times-circle"></i>Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="es" data-theme="barberpro">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BarberPro</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- DaisyUI CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            daisyui: {
+                themes: [
+                    {
+                        barberpro: {
+                            "primary": "#D4AF37",           // Premium Gold
+                            "secondary": "#1a1a1a",         // Dark gray
+                            "accent": "#FFD700",            // Bright gold
+                            "neutral": "#000000",           // Pure black
+                            "base-100": "#000000",          // Pure black background
+                            "base-200": "#0a0a0a",          // Card background
+                            "base-300": "#1a1a1a",          // Border color
+                            "info": "#3abff8",
+                            "success": "#36d399",
+                            "warning": "#fbbd23",
+                            "error": "#f87272",
+                        },
+                    },
+                ],
+            },
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/premium-styles.css" asp-append-version="true" />
+    
+    @RenderSection("Styles", required: false)
+</head>
+<body class="bg-base-100 text-base-content min-h-screen flex flex-col relative overflow-x-hidden">
+    
+    <!-- Animated Background (Always visible) -->
+    @await Html.PartialAsync("_Components/_AnimatedBackground")
+    
+    <!-- Navbar (Optional - controlled by ViewData) -->
+    @if (ViewData["ShowNavbar"] == null || (bool)ViewData["ShowNavbar"] == true)
+    {
+        <div class="relative z-10">
+            @await Html.PartialAsync("_Components/_PremiumNavbar")
+        </div>
+    }
+    
+    <!-- Main Content -->
+    <main class="relative z-10 flex-1">
+        @RenderBody()
+    </main>
+    
+    <!-- Footer (Always visible) -->
+    <div class="relative z-10">
+        @await Html.PartialAsync("_Components/_PremiumFooter")
+    </div>
+    
+    
+    <script>
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('dropdown-open');
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

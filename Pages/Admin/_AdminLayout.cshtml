@@ -1,0 +1,202 @@
+﻿@{
+    Layout = null;
+    var userName = User.Identity?.Name ?? "Admin";
+    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Administrador";
+}
+<!DOCTYPE html>
+<html lang="es" data-theme="barberpro">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- DaisyUI CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" />
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gold': '#fbbf24',
+                        'gold-dark': '#d97706',
+                    }
+                }
+            },
+            daisyui: {
+                themes: [{
+                    barberpro: {
+                        "primary": "#fbbf24",
+                        "primary-content": "#0f172a",
+                        "secondary": "#d97706",
+                        "accent": "#f59e0b",
+                        "neutral": "#1e293b",
+                        "base-100": "#0f172a",
+                        "base-200": "#1e293b",
+                        "base-300": "#334155",
+                        "base-content": "#e5e7eb",
+                        "info": "#3b82f6",
+                        "success": "#10b981",
+                        "warning": "#f59e0b",
+                        "error": "#ef4444",
+                    }
+                }]
+            }
+        }
+    </script>
+    
+    <style>
+        .sidebar-link {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link:hover {
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 4px solid #fbbf24;
+            padding-left: 1.25rem;
+        }
+        .sidebar-link.active {
+            background: rgba(251, 191, 36, 0.15);
+            border-left: 4px solid #fbbf24;
+            color: #fbbf24;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(251, 191, 36, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col transition-all duration-300 fixed lg:static h-full z-40 -translate-x-full lg:translate-x-0">
+            <!-- Logo -->
+            <div class="p-6 border-b border-slate-700">
+                <h1 class="text-2xl font-bold text-gold flex items-center gap-2">
+                    <i class="fas fa-scissors"></i>
+                    BarberPro
+                </h1>
+                <p class="text-xs text-gray-400 mt-1">Panel de Administración</p>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a href="/Admin/Dashboard" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                    <i class="fas fa-home w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="/Admin/Barberos/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                    <i class="fas fa-user-tie w-5"></i>
+                    <span>Barberos</span>
+                </a>
+                
+                <a href="/Admin/HorariosBarbero/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                    <i class="fas fa-calendar-alt w-5"></i>
+                    <span>Horarios</span>
+                </a>
+                
+                <a href="/Admin/Servicios/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                    <i class="fas fa-cut w-5"></i>
+                    <span>Servicios</span>
+                </a>
+                
+                <a href="/Admin/Usuarios/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                    <i class="fas fa-users w-5"></i>
+                    <span>Usuarios</span>
+                </a>
+                
+                <a href="/Admin/Reservas/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                    <i class="fas fa-calendar-check w-5"></i>
+                    <span>Reservas</span>
+                </a>
+                
+                <div class="pt-4 mt-4 border-t border-slate-700">
+                    <a href="/Logout/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:text-red-300">
+                        <i class="fas fa-sign-out-alt w-5"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Topbar -->
+            <header class="bg-slate-800 border-b border-slate-700 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <!-- Mobile Menu Button -->
+                    <button id="menuBtn" class="lg:hidden text-gray-300 hover:text-gold">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    
+                    <!-- Page Title -->
+                    <h2 class="text-xl font-semibold text-gray-100 hidden lg:block">@ViewData["Title"]</h2>
+                    
+                    <!-- User Info -->
+                    <div class="flex items-center gap-4">
+                        <!-- Notifications -->
+                        <button class="relative text-gray-400 hover:text-gold transition">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                        
+                        <!-- User Menu -->
+                        <div class="flex items-center gap-3 px-4 py-2 bg-slate-700 rounded-lg">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-slate-900 font-bold">
+                                @userName.Substring(0, 1).ToUpper()
+                            </div>
+                            <div class="hidden md:block">
+                                <p class="text-sm font-medium text-gray-200">@userName</p>
+                                <p class="text-xs text-gray-400">@userRole</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto p-6 bg-slate-900">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+    
+    <script>
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        
+        menuBtn?.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        });
+        
+        overlay?.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+        
+        // Active link highlighting
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

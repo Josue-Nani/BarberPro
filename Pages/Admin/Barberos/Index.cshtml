@@ -1,0 +1,100 @@
+@page
+@model BarberPro.Pages.Admin.Barberos.IndexModel
+@{
+    ViewData["Title"] = "Barberos";
+    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+}
+
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-100">Barberos</h1>
+            <p class="text-gray-400 mt-1">Gestiona los barberos de tu barbería</p>
+        </div>
+        <a asp-page="./Create" class="btn bg-gold hover:bg-gold-dark text-slate-900 border-none gap-2">
+            <i class="fas fa-plus"></i>
+            Nuevo Barbero
+        </a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="glass-card rounded-xl p-4">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-search text-gray-400"></i>
+            <input type="text" placeholder="Buscar barbero..." 
+                   class="flex-1 bg-transparent border-none outline-none text-gray-100 placeholder-gray-500" />
+        </div>
+    </div>
+
+    <!-- Barberos Grid -->
+    @if (Model.Barberos != null && Model.Barberos.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach(var barbero in Model.Barberos)
+            {
+                <div class="glass-card rounded-xl p-6 hover:border-gold transition-all duration-300 group">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-slate-900 font-bold text-lg">
+                                @(barbero.Usuario?.NombreCompleto?.Substring(0, 1).ToUpper() ?? "B")
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-100 group-hover:text-gold transition">
+                                    @barbero.Usuario?.NombreCompleto
+                                </h3>
+                                <p class="text-xs text-gray-400">ID: @barbero.BarberoID</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-scissors text-gold mt-1"></i>
+                            <div class="flex-1">
+                                <p class="text-xs text-gray-400">Especialidades</p>
+                                <p class="text-sm text-gray-200">@(barbero.Especialidades ?? "No especificado")</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-clock text-gold mt-1"></i>
+                            <div class="flex-1">
+                                <p class="text-xs text-gray-400">Disponibilidad</p>
+                                <p class="text-sm text-gray-200">@(barbero.Disponibilidad ?? "No especificado")</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-2 pt-4 border-t border-slate-700">
+                        <a asp-page="./Edit" asp-route-id="@barbero.BarberoID" 
+                           class="flex-1 btn btn-sm bg-slate-700 hover:bg-slate-600 text-gray-200 border-none gap-2">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </a>
+                        <a asp-page="./Delete" asp-route-id="@barbero.BarberoID" 
+                           class="btn btn-sm bg-red-600 hover:bg-red-700 text-white border-none gap-2">
+                            <i class="fas fa-trash"></i>
+                            Eliminar
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="glass-card rounded-xl p-12 text-center">
+            <i class="fas fa-user-tie text-6xl text-gray-600 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-300 mb-2">No hay barberos registrados</h3>
+            <p class="text-gray-400 mb-6">Comienza agregando tu primer barbero</p>
+            <a asp-page="./Create" class="btn bg-gold hover:bg-gold-dark text-slate-900 border-none gap-2">
+                <i class="fas fa-plus"></i>
+                Crear Barbero
+            </a>
+        </div>
+    }
+</div>

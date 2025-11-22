@@ -1,0 +1,151 @@
+﻿@model dynamic
+
+@{
+    ViewData["Title"] = "Registro";
+    ViewData["ShowNavbar"] = false;
+}
+
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4">
+    <div class="w-full max-w-4xl">
+        <div class="card bg-base-200 shadow-2xl border border-base-300">
+            <div class="card-body">
+                <div class="text-center mb-6">
+                    <div class="avatar placeholder mb-4">
+                        <div class="bg-primary text-primary-content rounded-full w-20 ring ring-primary ring-offset-base-100 ring-offset-4">
+                            <span class="text-3xl font-bold">BP</span>
+                        </div>
+                    </div>
+                    <h2 class="text-3xl font-bold">
+                        <span class="text-primary">Crear</span><span> Cuenta</span>
+                    </h2>
+                    <p class="text-sm opacity-60 mt-2">Únete a BarberPro y gestiona tus citas fácilmente</p>
+                </div>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-error shadow-lg mb-4">
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>@ViewBag.Error</span>
+                        </div>
+                    </div>
+                }
+
+                <form asp-controller="Login" asp-action="Register" method="post" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold text-primary">Nombre Completo</span>
+                                <span class="label-text-alt text-error">*</span>
+                            </label>
+                            <input type="text" name="nombre" placeholder="Juan Pérez" class="input input-bordered w-full" required minlength="3" maxlength="150" />
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold text-primary">Correo Electrónico</span>
+                                <span class="label-text-alt text-error">*</span>
+                            </label>
+                            <input type="email" name="correo" placeholder="correo@ejemplo.com" class="input input-bordered w-full" required />
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold text-primary">Teléfono</span>
+                                <span class="label-text-alt opacity-60">(Opcional)</span>
+                            </label>
+                            <input type="tel" name="telefono" placeholder="5551234567" class="input input-bordered w-full" pattern="[0-9]{10}" maxlength="20" />
+                        </div>
+
+                        <input type="hidden" name="rol" value="3" />
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold text-primary">Contraseña</span>
+                                <span class="label-text-alt text-error">*</span>
+                            </label>
+                            <input type="password" id="password" name="contrasena" placeholder="" class="input input-bordered w-full" required minlength="6" />
+                            <label class="label">
+                                <span class="label-text-alt opacity-60">Mínimo 6 caracteres</span>
+                            </label>
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold text-primary">Confirmar Contraseña</span>
+                                <span class="label-text-alt text-error">*</span>
+                            </label>
+                            <input type="password" id="confirmPassword" placeholder="" class="input input-bordered w-full" required minlength="6" />
+                            <label class="label">
+                                <span id="passwordMatch" class="label-text-alt"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-3">
+                            <input type="checkbox" class="checkbox checkbox-primary" required />
+                            <span class="label-text">Acepto los términos y condiciones</span>
+                        </label>
+                    </div>
+
+                    <div class="form-control mt-6">
+                        <button type="submit" class="btn btn-primary w-full gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                            </svg>
+                            Crear Cuenta
+                        </button>
+                    </div>
+                </form>
+
+                <div class="divider">O</div>
+
+                <div class="text-center">
+                    <p class="text-sm opacity-70">
+                        ¿Ya tienes una cuenta? 
+                        <a asp-controller="Login" asp-action="Login" class="link link-primary font-semibold">Inicia sesión aquí</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-6">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-ghost btn-sm gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Volver al inicio
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const passwordMatch = document.getElementById('passwordMatch');
+
+        function checkPasswords() {
+            if (confirmPassword.value === '') {
+                passwordMatch.textContent = '';
+                return;
+            }
+            if (password.value === confirmPassword.value) {
+                passwordMatch.textContent = ' Las contraseñas coinciden';
+                passwordMatch.className = 'label-text-alt text-success';
+                confirmPassword.setCustomValidity('');
+            } else {
+                passwordMatch.textContent = ' Las contraseñas no coinciden';
+                passwordMatch.className = 'label-text-alt text-error';
+                confirmPassword.setCustomValidity('Las contraseñas no coinciden');
+            }
+        }
+
+        password.addEventListener('input', checkPasswords);
+        confirmPassword.addEventListener('input', checkPasswords);
+    </script>
+}

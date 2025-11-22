@@ -1,0 +1,296 @@
+﻿@page
+@model BarberPro.Pages.ReservarModel
+@{
+    ViewData["Title"] = "Reservar Cita";
+    ViewData["ShowNavbar"] = true;
+}
+
+<!-- Container Principal -->
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+
+    <!-- Header Premium -->
+    <div class="text-center mb-12 animate-fade-in-up">
+        <div class="inline-block mb-6">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+        </div>
+        <h1 class="text-5xl md:text-6xl font-black mb-4">
+            <span class="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-300% animate-gradient">
+                Reserva tu Cita
+            </span>
+        </h1>
+        <p class="text-xl opacity-70">Elige tu servicio, barbero y horario preferido</p>
+    </div>
+
+    <!-- Steps Progress Premium -->
+    <div class="mb-12">
+        <ul class="steps steps-horizontal w-full">
+            <li class="step @(Model.ServicioID.HasValue ? "step-primary" : "")" data-content="@(Model.ServicioID.HasValue ? "✓" : "1")">
+                <span class="hidden sm:inline">Servicio</span>
+            </li>
+            <li class="step @(Model.BarberoID.HasValue ? "step-primary" : "")" data-content="@(Model.BarberoID.HasValue ? "✓" : "2")">
+                <span class="hidden sm:inline">Barbero</span>
+            </li>
+            <li class="step @(Model.Fecha.HasValue ? "step-primary" : "")" data-content="@(Model.Fecha.HasValue ? "✓" : "3")">
+                <span class="hidden sm:inline">Fecha & Hora</span>
+            </li>
+            <li class="step @(Model.HorarioID.HasValue ? "step-primary" : "")" data-content="@(Model.HorarioID.HasValue ? "✓" : "4")">
+                <span class="hidden sm:inline">Confirmar</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left Column - Selection Steps -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- Paso 1: Seleccionar Servicio -->
+            <div class="animate-fade-in-up">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center font-black text-black">1</div>
+                    <h2 class="text-3xl font-black text-primary">Selecciona un Servicio</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach (var servicio in Model.Servicios)
+                    {
+                        var isSelected = Model.ServicioID == servicio.ServicioID;
+                        <a href="?servicio=@servicio.ServicioID" 
+                           class="premium-card @(isSelected ? "border-primary scale-105" : "") group">
+                            <div class="card-body">
+                                <div class="flex items-start justify-between mb-3">
+                                    <h3 class="card-title text-xl">@servicio.Nombre</h3>
+                                    @if (isSelected)
+                                    {
+                                        <div class="badge badge-primary badge-lg shadow-lg">Seleccionado</div>
+                                    }
+                                </div>
+                                <p class="opacity-70 mb-4">@servicio.Descripcion</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-3xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                        $@servicio.Precio
+                                    </span>
+                                    <span class="text-sm opacity-60 flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        @servicio.DuracionMinutos min
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- Paso 2: Seleccionar Barbero -->
+            @if (Model.ServicioID.HasValue)
+            {
+                <div class="animate-fade-in-up">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center font-black text-black">2</div>
+                        <h2 class="text-3xl font-black text-primary">Selecciona tu Barbero</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach (var barbero in Model.Barberos)
+                        {
+                            var isSelected = Model.BarberoID == barbero.BarberoID;
+                            <a href="?servicio=@Model.ServicioID&barbero=@barbero.BarberoID" 
+                               class="premium-card @(isSelected ? "border-primary scale-105" : "")">
+                                <div class="card-body">
+                                    <div class="flex items-center gap-4 mb-3">
+                                        <div class="avatar placeholder">
+                                            <div class="bg-gradient-to-br from-primary to-accent text-black rounded-full w-16">
+                                                <span class="text-2xl font-bold">@barbero.Usuario.NombreCompleto.Substring(0, 1)</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="card-title text-lg">@barbero.Usuario.NombreCompleto</h3>
+                                            @if (isSelected)
+                                            {
+                                                <div class="badge badge-primary badge-sm">Seleccionado</div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <p class="text-sm opacity-70">Barbero profesional</p>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Paso 3: Seleccionar Fecha y Hora -->
+            @if (Model.BarberoID.HasValue)
+            {
+                <div class="animate-fade-in-up">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center font-black text-black">3</div>
+                        <h2 class="text-3xl font-black text-primary">Selecciona Fecha y Hora</h2>
+                    </div>
+                    
+                    <div class="card bg-base-200 shadow-xl border-2 border-base-300">
+                        <div class="card-body">
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-bold text-primary text-lg">Fecha</span>
+                                </label>
+                                <input type="date" 
+                                       id="fechaInput" 
+                                       class="input input-bordered input-primary input-lg w-full" 
+                                       min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                       value="@(Model.Fecha?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd"))" />
+                            </div>
+
+                            @if (Model.Fecha.HasValue)
+                            {
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-bold text-primary text-lg">Horarios Disponibles</span>
+                                    </label>
+                                    
+                                    @if (Model.Horarios.Any())
+                                    {
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                            @foreach (var horario in Model.Horarios)
+                                            {
+                                                var isSelected = Model.HorarioID == horario.HorarioID;
+                                                <a href="?servicio=@Model.ServicioID&barbero=@Model.BarberoID&fecha=@Model.Fecha.Value.ToString("yyyy-MM-dd")&horario=@horario.HorarioID"
+                                                   class="btn @(isSelected ? "btn-primary" : "btn-outline btn-primary") hover:scale-105 transition-transform">
+                                                    @horario.HoraInicio.ToString(@"hh\:mm")
+                                                </a>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-warning">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                            <span>No hay horarios disponibles para esta fecha. Por favor selecciona otra fecha.</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+
+        <!-- Right Column - Summary Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="card bg-gradient-to-br from-base-200 to-base-300 shadow-2xl sticky top-24 border-2 border-primary/30">
+                <div class="card-body">
+                    <h3 class="card-title text-2xl mb-6 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Resumen de Reserva
+                    </h3>
+
+                    <div class="space-y-4">
+                        <!-- Servicio -->
+                        <div class="p-4 bg-base-100 rounded-xl">
+                            <p class="text-sm opacity-60 mb-1">Servicio</p>
+                            @if (Model.ServicioID.HasValue)
+                            {
+                                var servicio = Model.Servicios.FirstOrDefault(s => s.ServicioID == Model.ServicioID);
+                                <p class="font-bold text-lg">@servicio?.Nombre</p>
+                                <p class="text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mt-2">
+                                    $@servicio?.Precio
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="opacity-40">No seleccionado</p>
+                            }
+                        </div>
+
+                        <!-- Barbero -->
+                        <div class="p-4 bg-base-100 rounded-xl">
+                            <p class="text-sm opacity-60 mb-1">Barbero</p>
+                            @if (Model.BarberoID.HasValue)
+                            {
+                                var barbero = Model.Barberos.FirstOrDefault(b => b.BarberoID == Model.BarberoID);
+                                <p class="font-bold text-lg">@barbero?.Usuario.NombreCompleto</p>
+                            }
+                            else
+                            {
+                                <p class="opacity-40">No seleccionado</p>
+                            }
+                        </div>
+
+                        <!-- Fecha y Hora -->
+                        <div class="p-4 bg-base-100 rounded-xl">
+                            <p class="text-sm opacity-60 mb-1">Fecha y Hora</p>
+                            @if (Model.Fecha.HasValue && Model.HorarioID.HasValue)
+                            {
+                                var horario = Model.Horarios.FirstOrDefault(h => h.HorarioID == Model.HorarioID);
+                                <p class="font-bold text-lg">@Model.Fecha.Value.ToString("dd/MM/yyyy")</p>
+                                <p class="text-primary font-semibold">@horario?.HoraInicio.ToString(@"hh\:mm")</p>
+                            }
+                            else
+                            {
+                                <p class="opacity-40">No seleccionado</p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Confirm Button -->
+                    @if (Model.HorarioID.HasValue)
+                    {
+                        <form method="post" class="mt-6">
+                            <input type="hidden" name="servicioId" value="@Model.ServicioID" />
+                            <input type="hidden" name="barberoId" value="@Model.BarberoID" />
+                            <input type="hidden" name="horarioId" value="@Model.HorarioID" />
+                            
+                            <button type="submit" class="btn-premium w-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Confirmar Reserva</span>
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button class="btn btn-disabled w-full mt-6" disabled>
+                            Completa todos los pasos
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-submit al cambiar fecha
+        document.getElementById('fechaInput')?.addEventListener('change', function() {
+            const fecha = this.value;
+            const params = new URLSearchParams(window.location.search);
+            params.set('fecha', fecha);
+            window.location.search = params.toString();
+        });
+
+        // Scroll suave a elementos seleccionados
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectedCard = document.querySelector('.scale-105');
+            if (selectedCard) {
+                selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    </script>
+}

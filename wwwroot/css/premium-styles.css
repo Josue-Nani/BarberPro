@@ -1,0 +1,217 @@
+/* ===== ANIMACIONES PREMIUM ===== */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes gradient {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== CLASES DE ANIMACIÓN ===== */
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-gradient {
+    animation: gradient 3s ease infinite;
+}
+
+.animate-spin-slow {
+    animation: spin-slow 20s linear infinite;
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out;
+    animation-fill-mode: both;
+}
+
+/* ===== UTILIDADES ===== */
+.bg-300% {
+    background-size: 300%;
+}
+
+.bg-grid-pattern {
+    background-image:
+        linear-gradient(rgba(212, 175, 55, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212, 175, 55, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+/* ===== CARDS PREMIUM ===== */
+.premium-card {
+    background-color: #0a0a0a;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 2px solid transparent;
+    border-radius: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.premium-card:hover {
+    border-color: #D4AF37;
+    transform: scale(1.05);
+    box-shadow: 0 25px 50px -12px rgba(212, 175, 55, 0.25);
+}
+
+.premium-card-body {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* ===== BOTONES PREMIUM ===== */
+.btn-premium {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.25rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #000000;
+    background: linear-gradient(to right, #D4AF37, #FFD700);
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: scale(1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-premium::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, #FFD700, #D4AF37);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.btn-premium:hover {
+    transform: scale(1.05);
+    box-shadow: 0 25px 50px -12px rgba(212, 175, 55, 0.5);
+}
+
+.btn-premium:hover::before {
+    opacity: 1;
+}
+
+.btn-premium>* {
+    position: relative;
+    z-index: 10;
+}
+
+/* ===== TÍTULOS PREMIUM ===== */
+.title-premium {
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(to right, #D4AF37, #FFD700, #D4AF37);
+    background-size: 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient 3s ease infinite;
+}
+
+@media (min-width: 768px) {
+    .title-premium {
+        font-size: 4.5rem;
+    }
+}
+
+.subtitle-premium {
+    font-size: 2.25rem;
+    font-weight: 900;
+    background: linear-gradient(to right, #D4AF37, #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (min-width: 768px) {
+    .subtitle-premium {
+        font-size: 3rem;
+    }
+}
+
+/* ===== ICONOS PREMIUM ===== */
+.icon-premium {
+    width: 5rem;
+    height: 5rem;
+    background: linear-gradient(to bottom right, #D4AF37, #FFD700);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.premium-card:hover .icon-premium {
+    transform: rotate(12deg);
+}
+
+/* ===== GLASS EFFECT ===== */
+.glass-effect {
+    background-color: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(26, 26, 26, 0.5);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .title-premium {
+        font-size: 2.25rem;
+    }
+
+    .subtitle-premium {
+        font-size: 1.875rem;
+    }
+
+    .btn-premium {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+}
