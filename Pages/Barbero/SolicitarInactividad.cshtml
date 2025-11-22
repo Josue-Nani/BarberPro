@@ -1,0 +1,119 @@
+@page
+@model BarberPro.Pages.Barbero.SolicitarInactividadModel
+@{
+    ViewData["Title"] = "Solicitar Inactividad";
+}
+
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-3xl font-bold text-gray-100 mb-2">
+            <i class="fas fa-calendar-times text-gold mr-2"></i>
+            Solicitar Tiempo de Inactividad
+        </h2>
+        <p class="text-gray-400">Solicita días de descanso o inactividad que requieren aprobación del administrador</p>
+    </div>
+
+    <!-- Error Message -->
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="glass-card rounded-xl p-4 mb-6 border-2 border-red-500/50 bg-red-900/20">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-exclamation-circle text-red-500 text-2xl"></i>
+                <p class="text-red-400">@Model.MensajeError</p>
+            </div>
+        </div>
+    }
+
+    <!-- Form Card -->
+    <div class="glass-card rounded-xl p-8">
+        <form method="post" class="space-y-6">
+            <!-- Fecha Inicio -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-calendar-day text-gold mr-2"></i>
+                    Fecha de Inicio
+                </label>
+                <input 
+                    asp-for="Solicitud.FechaInicio" 
+                    type="date" 
+                    class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition"
+                    required
+                />
+                <span asp-validation-for="Solicitud.FechaInicio" class="text-red-400 text-sm"></span>
+            </div>
+
+            <!-- Fecha Fin -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-calendar-check text-gold mr-2"></i>
+                    Fecha de Fin
+                </label>
+                <input 
+                    asp-for="Solicitud.FechaFin" 
+                    type="date" 
+                    class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition"
+                    required
+                />
+                <span asp-validation-for="Solicitud.FechaFin" class="text-red-400 text-sm"></span>
+            </div>
+
+            <!-- Motivo -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-comment-alt text-gold mr-2"></i>
+                    Motivo de la Inactividad
+                </label>
+                <textarea 
+                    asp-for="Solicitud.Motivo" 
+                    rows="5" 
+                    maxlength="500"
+                    class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 placeholder-gray-500 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition resize-none"
+                    placeholder="Describe el motivo de tu solicitud (mínimo 10 caracteres)..."
+                    required
+                ></textarea>
+                <div class="flex justify-between items-center mt-1">
+                    <span asp-validation-for="Solicitud.Motivo" class="text-red-400 text-sm"></span>
+                    <span class="text-gray-400 text-xs">Máximo 500 caracteres</span>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="bg-blue-900/20 border border-blue-500/50 rounded-lg p-4">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-info-circle text-blue-400 text-xl mt-1"></i>
+                    <div>
+                        <p class="text-blue-300 font-semibold mb-1">Importante</p>
+                        <p class="text-gray-300 text-sm">
+                            Tu solicitud será enviada al administrador para su revisión. 
+                            Recibirás una respuesta que puede ser aprobada o rechazada. 
+                            Solo cuando sea aprobada, tu disponibilidad cambiará automáticamente.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3 pt-4">
+                <button 
+                    type="submit" 
+                    class="flex-1 bg-gold hover:bg-gold-dark text-slate-900 font-semibold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar Solicitud
+                </button>
+                <a 
+                    href="/Barbero/MisSolicitudes" 
+                    class="flex-1 bg-slate-700 hover:bg-slate-600 text-gray-100 font-semibold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                    <i class="fas fa-list"></i>
+                    Ver Mis Solicitudes
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,130 @@
+@page
+@model BarberPro.Pages.Admin.Barberos.CambiarDisponibilidadModel
+@{
+    ViewData["Title"] = "Mi Disponibilidad";
+    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="glass-card rounded-lg p-6">
+        <h2 class="text-2xl font-bold text-gold mb-6">
+            <i class="fas fa-toggle-on mr-2"></i>
+            Mi Disponibilidad
+        </h2>
+
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-success mb-4">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["Mensaje"]</span>
+            </div>
+        }
+
+        @if (Model.Barbero != null && Model.Barbero.Usuario != null)
+        {
+            <div class="mb-6 p-4 bg-slate-700 rounded-lg">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-slate-900 font-bold text-2xl">
+                        @Model.Barbero.Usuario.NombreCompleto.Substring(0, 1).ToUpper()
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-100">@Model.Barbero.Usuario.NombreCompleto</h3>
+                        <p class="text-sm text-gray-400">@Model.Barbero.Usuario.Correo</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" class="space-y-6" id="disponibilidadForm">
+                <input type="hidden" asp-for="Barbero.BarberoID" />
+                <input type="hidden" asp-for="Barbero.UsuarioID" />
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text text-gray-300 font-semibold">Estado de Disponibilidad</span>
+                    </label>
+                    <select asp-for="Barbero.Disponibilidad" class="select select-bordered w-full bg-slate-700 text-gray-100" id="disponibilidadSelect">
+                        <option value="Disponible">🟢 Disponible</option>
+                        <option value="No Disponible">🔴 No Disponible</option>
+                        <option value="Ocupado">🟡 Ocupado</option>
+                    </select>
+                    <label class="label">
+                        <span class="label-text-alt text-gray-400">
+                            Cambia tu estado para que los clientes sepan si estás disponible para reservas
+                        </span>
+                    </label>
+                </div>
+
+                <div id="motivoContainer" class="form-control hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                        <div>
+                            <label class="label"><span class="label-text text-gray-300 font-semibold">Fecha inicio</span></label>
+                            <input asp-for="FechaInicio" type="date" class="input input-bordered w-full bg-slate-700 text-gray-100" />
+                        </div>
+                        <div>
+                            <label class="label"><span class="label-text text-gray-300 font-semibold">Fecha fin</span></label>
+                            <input asp-for="FechaFin" type="date" class="input input-bordered w-full bg-slate-700 text-gray-100" />
+                        </div>
+                    </div>
+
+                    <label class="label">
+                        <span class="label-text text-gray-300 font-semibold">Motivo de inactividad (se enviará al administrador)</span>
+                    </label>
+                    <textarea asp-for="Motivo" class="textarea textarea-bordered w-full bg-slate-700 text-gray-100" rows="4" placeholder="Describe por qué no estarás disponible (mínimo 10 caracteres)"></textarea>
+                    <span class="text-xs text-gray-400">El administrador revisará la solicitud y aprobará o rechazará.</span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Barbero.Especialidades))
+                {
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text text-gray-300 font-semibold">Especialidades</span>
+                        </label>
+                        <p class="p-3 bg-slate-700 rounded-lg text-gray-100">
+                            @Model.Barbero.Especialidades
+                        </p>
+                    </div>
+                }
+
+                <div class="flex gap-4">
+                    <button type="submit" class="btn btn-primary flex-1">
+                        <i class="fas fa-save mr-2"></i>
+                        Guardar Cambios
+                    </button>
+                    <a href="/Admin/Reservas/Index" class="btn btn-ghost flex-1">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Volver a Reservas
+                    </a>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>No se encontró información de barbero para tu usuario.</span>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function() {
+            const select = document.getElementById('disponibilidadSelect');
+            const motivoContainer = document.getElementById('motivoContainer');
+
+            function toggleMotivo() {
+                if (!select) return;
+                if (select.value === 'No Disponible') {
+                    motivoContainer.classList.remove('hidden');
+                } else {
+                    motivoContainer.classList.add('hidden');
+                }
+            }
+
+            select?.addEventListener('change', toggleMotivo);
+            // initial state
+            toggleMotivo();
+        })();
+    </script>
+}

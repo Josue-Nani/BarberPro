@@ -1,0 +1,14 @@
+@page
+@model BarberPro.Pages.GetHorariosDisponiblesModel
+@{
+    // API endpoint to get available time slots
+}
+
+@functions {
+    public class HorarioDisponibleDTO
+    {
+        public TimeSpan HoraInicio { get; set; }
+        public TimeSpan HoraFin { get; set; }
+        public bool Disponible { get; set; }
+    }
+}

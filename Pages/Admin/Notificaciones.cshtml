@@ -1,0 +1,205 @@
+@page
+@model BarberPro.Pages.Admin.NotificacionesModel
+@{
+    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "Notificaciones";
+}
+
+<div class="container py-5">
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-3xl font-bold text-gray-100 mb-2">
+            <i class="fas fa-bell text-gold mr-2"></i>
+            Centro de Notificaciones
+        </h2>
+        <p class="text-gray-400">Sol icitudes pendientes de aprobación de disponibilidad</p>
+    </div>
+
+    <!-- Success Message -->
+    @if (!string.IsNullOrEmpty(Model.MensajeExito))
+    {
+        <div class="glass-card rounded-xl p-4 mb-6 border-2 border-green-500/50 bg-green-900/20">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+                <p class="text-green-400">@Model.MensajeExito</p>
+            </div>
+        </div>
+    }
+
+    <!-- Error Message -->
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="glass-card rounded-xl p-4 mb-6 border-2 border-red-500/50 bg-red-900/20">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-exclamation-circle text-red-500 text-2xl"></i>
+                <p class="text-red-400">@Model.MensajeError</p>
+            </div>
+        </div>
+    }
+
+    <!-- Solicitudes List -->
+    @if (!Model.SolicitudesPendientes.Any())
+    {
+        <div class="glass-card rounded-xl p-12 text-center">
+            <i class="fas fa-check-double text-green-500 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-100 mb-2">Todo al día</h3>
+            <p class="text-gray-400">No hay solicitudes pendientes de revisión</p>
+        </div>
+    }
+    else
+    {
+        <div class="mb-4">
+            <span class="text-gray-300">
+                <i class="fas fa-inbox text-gold mr-2"></i>
+                @Model.SolicitudesPendientes.Count solicitud(es) pendiente(s)
+            </span>
+        </div>
+
+        <div class="grid gap-6">
+            @foreach (var solicitud in Model.SolicitudesPendientes)
+            {
+                <div class="glass-card rounded-xl p-6 border-2 border-yellow-500/30">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-slate-900 font-bold text-xl">
+                                @(solicitud.Barbero?.Usuario?.NombreCompleto?.Substring(0, 1).ToUpper() ?? "B")
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-100">
+                                    @solicitud.Barbero?.Usuario?.NombreCompleto
+                                </h3>
+                                <p class="text-sm text-gray-400">
+                                    <i class="fas fa-envelope mr-1"></i>
+                                    @solicitud.Barbero?.Usuario?.Correo
+                                </p>
+                            </div>
+                        </div>
+                        <span class="bg-yellow-900/30 text-yellow-400 px-4 py-2 rounded-full text-sm font-semibold border-2 border-yellow-500/50">
+                            <i class="fas fa-clock mr-1"></i>
+                            Pendiente
+                        </span>
+                    </div>
+
+                    <!-- Dates -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-slate-800/50 rounded-lg p-4">
+                            <p class="text-xs text-gray-400 mb-1">Fecha de Solicitud</p>
+                            <p class="text-gray-200 font-semibold">
+                                <i class="fas fa-calendar-plus text-gold mr-2"></i>
+                                @solicitud.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-4">
+                            <p class="text-xs text-gray-400 mb-1">Periodo Solicitado</p>
+                            <p class="text-gray-200 font-semibold">
+                                <i class="fas fa-calendar-day text-gold mr-2"></i>
+                                @solicitud.FechaInicio.ToString("dd/MM/yyyy") - @solicitud.FechaFin.ToString("dd/MM/yyyy")
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Motivo -->
+                    <div class="bg-slate-800/50 rounded-lg p-4 mb-4">
+                        <p class="text-sm text-gray-400 mb-2 flex items-center gap-2">
+                            <i class="fas fa-comment-alt text-gold"></i>
+                            Motivo de la solicitud:
+                        </p>
+                        <p class="text-gray-200">@solicitud.Motivo</p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 pt-4 border-t border-slate-700">
+                        <!-- Aprobar Button -->
+                        <form method="post" asp-page-handler="Aprobar" class="flex-1">
+                            <input type="hidden" name="solicitudId" value="@solicitud.SolicitudID" />
+                            <button 
+                                type="submit" 
+                                class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                                onclick="return confirm('¿Estás seguro de aprobar esta solicitud? El barbero será marcado como No Disponible.');"
+                            >
+                                <i class="fas fa-check"></i>
+                                Aprobar Solicitud
+                            </button>
+                        </form>
+
+                        <!-- Rechazar Button with Modal Trigger -->
+                        <button 
+                            type="button"
+                            onclick="abrirModalRechazo(@solicitud.SolicitudID)"
+                            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                        >
+                            <i class="fas fa-times"></i>
+                            Rechazar Solicitud
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Modal de Rechazo -->
+<div id="modalRechazo" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card rounded-xl p-6 max-w-md w-full">
+        <h3 class="text-xl font-bold text-gray-100 mb-4">
+            <i class="fas fa-times-circle text-red-500 mr-2"></i>
+            Rechazar Solicitud
+        </h3>
+        <form method="post" asp-page-handler="Rechazar" id="formRechazo">
+            <input type="hidden" name="solicitudId" id="rechazoSolicitudId" />
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    Motivo del rechazo <span class="text-red-400">*</span>
+                </label>
+                <textarea 
+                    name="motivoRechazo" 
+                    rows="4" 
+                    maxlength="500"
+                    class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 placeholder-gray-500 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition resize-none"
+                    placeholder="Explica por qué se rechaza esta solicitud..."
+                    required
+                ></textarea>
+                <p class="text-xs text-gray-400 mt-1">Máximo 500 caracteres</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button 
+                    type="submit"
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+                >
+                    Confirmar Rechazo
+                </button>
+                <button 
+                    type="button"
+                    onclick="cerrarModalRechazo()"
+                    class="flex-1 bg-slate-700 hover:bg-slate-600 text-gray-100 font-semibold py-2 px-4 rounded-lg transition"
+                >
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function abrirModalRechazo(solicitudId) {
+            document.getElementById('rechazoSolicitudId').value = solicitudId;
+            document.getElementById('modalRechazo').classList.remove('hidden');
+        }
+
+        function cerrarModalRechazo() {
+            document.getElementById('modalRechazo').classList.add('hidden');
+            document.getElementById('formRechazo').reset();
+        }
+
+        // Cerrar modal al hacer click fuera
+        document.getElementById('modalRechazo').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModalRechazo();
+            }
+        });
+    </script>
+}

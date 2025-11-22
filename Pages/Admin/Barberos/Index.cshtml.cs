@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using BarberoModel = BarberPro.Models.Barbero;
 
 namespace BarberPro.Pages.Admin.Barberos
 {
@@ -14,7 +15,7 @@ namespace BarberPro.Pages.Admin.Barberos
         private readonly BarberContext _context;
         public IndexModel(BarberContext context) => _context = context;
 
-        public List<Barbero> Barberos { get; set; }
+        public List<BarberoModel> Barberos { get; set; }
 
         public void OnGet()
         {

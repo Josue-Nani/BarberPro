@@ -5,6 +5,7 @@ using BarberPro.Models;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using BarberoModel = BarberPro.Models.Barbero;
 
 namespace BarberPro.Pages.Admin.Barberos
 {
@@ -15,7 +16,7 @@ namespace BarberPro.Pages.Admin.Barberos
         public DeleteModel(BarberContext context) => _context = context;
 
         [BindProperty]
-        public Barbero Barbero { get; set; }
+        public BarberoModel Barbero { get; set; }
 
         public IActionResult OnGet(int id)
         {

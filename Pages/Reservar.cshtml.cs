@@ -26,11 +26,8 @@ namespace BarberPro.Pages
             // Load only active services for initial page load
             Servicios = _context.Servicios.Where(s => s.Estado).ToList();
             
-            // Show success message if exists
-            if (TempData["SuccessMessage"] != null)
-            {
-                Mensaje = TempData["SuccessMessage"]?.ToString();
-            }
+            // Note: TempData["SuccessMessage"] is displayed directly in the view
+            // Don't assign it to Mensaje to avoid duplicate messages
         }
 
         // Accept Fecha as string to avoid binding issues and parse manually
@@ -104,6 +101,27 @@ namespace BarberPro.Pages
             }
             var expectedDuration = TimeSpan.FromMinutes(servicio.DuracionMinutos);
 
+            // ====== VALIDACIÓN DE DISPONIBILIDAD DEL BARBERO ======
+            var barbero = await _context.Barberos.FirstOrDefaultAsync(b => b.BarberoID == BarberoID);
+            if (barbero == null)
+            {
+                Console.WriteLine("BARBERO NOT FOUND in database");
+                Mensaje = "Barbero no encontrado.";
+                OnGet();
+                return Page();
+            }
+
+            // Verificar que el barbero esté disponible
+            var disponibilidad = barbero.Disponibilidad ?? "Disponible";
+            if (disponibilidad != "Disponible")
+            {
+                Console.WriteLine($"BARBERO NOT AVAILABLE - Status: {disponibilidad}");
+                Mensaje = $"El barbero seleccionado no está disponible en este momento (Estado: {disponibilidad}). Por favor selecciona otro barbero.";
+                OnGet();
+                return Page();
+            }
+            // =====================================================
+
             // We'll need parsedInicio/parsedFin. If HorarioID provided but times are missing, fetch horario and find an available slot inside it.
             TimeSpan parsedInicio = default;
             TimeSpan parsedFin = default;
@@ -123,9 +141,9 @@ namespace BarberPro.Pages
                 // If times weren't provided in the form, find the first available slot inside this horario block using the same step logic as GetHorarios
                 if (string.IsNullOrEmpty(HoraInicio) || string.IsNullOrEmpty(HoraFin))
                 {
-                    // load existing reservas for that barbero and date
+                    // load existing reservas for that barbero and date (excluding cancelled ones)
                     var reservas = await _context.Reservas
-                        .Where(r => r.BarberoID == BarberoID && r.FechaReserva.Date == parsedFecha.Date)
+                        .Where(r => r.BarberoID == BarberoID && r.FechaReserva.Date == parsedFecha.Date && r.Estado != "Cancelada")
                         .ToListAsync();
 
                     // compute step (gcd of all service durations)
@@ -260,9 +278,9 @@ namespace BarberPro.Pages
                 return Page();
             }
 
-            // Check for overlapping reservations for this barbero on the same date
+            // Check for overlapping reservations for this barbero on the same date (excluding cancelled ones)
             var overlapping = await _context.Reservas
-                .AnyAsync(r => r.BarberoID == BarberoID && r.FechaReserva.Date == parsedFecha.Date && r.HoraInicio < parsedFin && r.HoraFin > parsedInicio);
+                .AnyAsync(r => r.BarberoID == BarberoID && r.FechaReserva.Date == parsedFecha.Date && r.HoraInicio < parsedFin && r.HoraFin > parsedInicio && r.Estado != "Cancelada");
 
             if (overlapping)
             {

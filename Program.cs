@@ -7,7 +7,7 @@ using BarberPro.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Habilitar logging en consola para depuración
+// Habilitar logging en consola para depuraciÃ³n
 builder.Logging.AddConsole();
 
 // Add services to the container.
@@ -15,7 +15,7 @@ builder.Services.AddControllersWithViews();
 // Add Razor Pages
 builder.Services.AddRazorPages();
 
-// Registrar IHttpContextAccessor para inyección en vistas/layout
+// Registrar IHttpContextAccessor para inyecciÃ³n en vistas/layout
 builder.Services.AddHttpContextAccessor();
 
 // Registrar DbContext con SQL Server
@@ -29,6 +29,7 @@ if (!string.IsNullOrEmpty(connectionString))
 // Register authorization handlers
 // AdminHandler requires BarberContext (scoped), so register it as scoped instead of singleton
 builder.Services.AddScoped<IAuthorizationHandler, AdminHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, BarberOrAdminHandler>();
 
 // Agregar soporte para sesiones
 builder.Services.AddDistributedMemoryCache();
@@ -57,7 +58,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
     });
 
-// Authorization: exigir usuario autenticado por defecto (se permite AllowAnonymous en las acciones públicas)
+// Authorization: exigir usuario autenticado por defecto (se permite AllowAnonymous en las acciones pÃºblicas)
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -65,6 +66,7 @@ builder.Services.AddAuthorization(options =>
         .Build();
 
     options.AddPolicy("AdminOnly", policy => policy.Requirements.Add(new AdminRequirement()));
+    options.AddPolicy("BarberOrAdmin", policy => policy.Requirements.Add(new BarberOrAdminRequirement()));
 });
 
 var app = builder.Build();

@@ -26,7 +26,8 @@ namespace BarberPro.Pages.Api
                     barberoID = b.BarberoID,
                     nombre = b.Usuario!.NombreCompleto,
                     especialidades = b.Especialidades,
-                    fotoPerfil = b.Usuario.FotoPerfil
+                    fotoPerfil = b.Usuario.FotoPerfil,
+                    disponibilidad = b.Disponibilidad ?? "Disponible"
                 })
                 .ToList();
 

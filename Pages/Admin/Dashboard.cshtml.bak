@@ -1,0 +1,111 @@
+@page "/Admin/Dashboard"
+@model BarberPro.Pages.Admin.DashboardModel
+@{
+    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="max-w-7xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gold">Dashboard - Reporte General</h1>
+        <p class="text-sm text-gray-400">Resumen de actividad: citas generadas y clientes registrados por mes.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="glass-card p-4 rounded-lg">
+            <p class="text-sm text-gray-300">Total Reservas</p>
+            <p class="text-2xl font-bold text-gold">@Model.TotalReservas</p>
+        </div>
+        <div class="glass-card p-4 rounded-lg">
+            <p class="text-sm text-gray-300">Total Clientes</p>
+            <p class="text-2xl font-bold text-gold">@Model.TotalClientes</p>
+        </div>
+        <div class="glass-card p-4 rounded-lg">
+            <p class="text-sm text-gray-300">Periodo mostrado</p>
+            <p class="text-lg">Últimos @Model.MonthsToShow meses</p>
+        </div>
+        <div class="glass-card p-4 rounded-lg">
+            <p class="text-sm text-gray-300">Top Servicios (12 meses)</p>
+            <ul>
+                @foreach (var s in Model.TopServices)
+                {
+                    <li class="flex justify-between"><span>@s.Name</span><span class="font-bold">@s.Count</span></li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-base-100 p-4 rounded-lg shadow-md">
+            <h3 class="font-semibold mb-2">Reservas / Clientes (mes a mes)</h3>
+            <canvas id="lineChart" height="130"></canvas>
+        </div>
+
+        <div class="bg-base-100 p-4 rounded-lg shadow-md">
+            <h3 class="font-semibold mb-2">Ingresos por mes</h3>
+            <canvas id="revenueChart" height="130"></canvas>
+        </div>
+    </div>
+
+    <div class="mt-6 bg-base-100 p-4 rounded-lg shadow-md">
+        <h3 class="font-semibold mb-2">Detalle mensual</h3>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Mes</th>
+                        <th>Año</th>
+                        <th>Reservas</th>
+                        <th>Clientes Registrados</th>
+                        <th>Ingresos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Stats)
+                    {
+                        <tr>
+                            <td>@row.MonthName</td>
+                            <td>@row.Year</td>
+                            <td>@row.ReservationsCount</td>
+                            <td>@row.ClientsCount</td>
+                            <td>-</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = @Html.Raw(Model.MonthLabelsJson);
+        const reservations = @Html.Raw(Model.ReservationsJson);
+        const clients = @Html.Raw(Model.ClientsJson);
+        const revenue = @Html.Raw(Model.RevenueJson);
+
+        const ctx = document.getElementById('lineChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Reservas', data: reservations, borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.2)', tension: 0.3 },
+                    { label: 'Clientes', data: clients, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.15)', tension: 0.3 }
+                ]
+            },
+            options: { responsive: true }
+        });
+
+        const ctx2 = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'Ingresos', data: revenue, backgroundColor: '#f59e0b' }]
+            },
+            options: { responsive: true }
+        });
+    </script>
+}

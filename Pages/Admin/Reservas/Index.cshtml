@@ -1,56 +1,253 @@
 @page
 @model BarberPro.Pages.Admin.Reservas.IndexModel
 @{
-    ViewData["Title"] = "Reservas";
-    ViewData["Subtitle"] = "Ver y gestionar reservas";
-    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "Gestión de Reservas";
+    Layout = "~/Pages/Admin/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <input class="form-control form-control-dark" placeholder="Buscar reserva" style="width:320px;" />
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-white">
+                <i class="fas fa-calendar-check text-gold mr-3"></i>
+                Gestión de Reservas
+            </h1>
+            <p class="text-gray-400 mt-1">Total: @Model.Reservas.Count reservas</p>
+        </div>
     </div>
-  </div>
 
-  <div class="card card-admin mb-3">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-dark table-admin mb-0 align-middle">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>ClienteID</th>
-              <th>Barbero</th>
-              <th>Servicio</th>
-              <th>Fecha</th>
-              <th>Hora Inicio</th>
-              <th>Hora Fin</th>
-              <th>Estado</th>
-              <th class="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach(var r in Model.Reservas)
-            {
-                <tr>
-                  <td>@r.ReservaID</td>
-                  <td>@r.ClienteID</td>
-                  <td>@r.BarberoID</td>
-                  <td>@r.ServicioID</td>
-                  <td>@r.FechaReserva.ToString("dd/MM/yyyy")</td>
-                  <td>@r.HoraInicio.ToString(@"hh\:mm")</td>
-                  <td>@r.HoraFin.ToString(@"hh\:mm")</td>
-                  <td>@r.Estado</td>
-                  <td class="text-center">
-                    <a asp-page="./Edit" asp-route-id="@r.ReservaID" class="btn btn-sm btn-outline-light me-1">Editar</a>
-                    <a asp-page="./Delete" asp-route-id="@r.ReservaID" class="btn btn-sm btn-danger">Eliminar</a>
-                  </td>
-                </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+    <!-- Filtros -->
+    <div class="bg-slate-800 rounded-lg shadow-xl border border-slate-700 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                <i class="fas fa-filter text-gold"></i>
+                Filtros
+            </h2>
+        </div>
+
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Fecha Inicio -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-calendar text-gold mr-1"></i>
+                    Fecha Inicio
+                </label>
+                <input type="date" 
+                       asp-for="FechaInicio" 
+                       class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50">
+            </div>
+
+            <!-- Fecha Fin -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-calendar text-gold mr-1"></i>
+                    Fecha Fin
+                </label>
+                <input type="date" 
+                       asp-for="FechaFin" 
+                       class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50">
+            </div>
+
+            <!-- Barbero -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-user-tie text-gold mr-1"></i>
+                    Barbero
+                </label>
+                <select asp-for="BarberoID" 
+                        class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50">
+                    <option value="">Todos los barberos</option>
+                    @foreach (var barbero in Model.Barberos)
+                    {
+                        <option value="@barbero.BarberoID">@barbero.Usuario?.NombreCompleto</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Servicio -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-cut text-gold mr-1"></i>
+                    Servicio
+                </label>
+                <select asp-for="ServicioID" 
+                        class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50">
+                    <option value="">Todos los servicios</option>
+                    @foreach (var servicio in Model.Servicios)
+                    {
+                        <option value="@servicio.ServicioID">@servicio.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Estado -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-info-circle text-gold mr-1"></i>
+                    Estado
+                </label>
+                <select asp-for="Estado" 
+                        class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50">
+                    <option value="">Todos los estados</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Confirmada">Confirmada</option>
+                    <option value="Completada">Completada</option>
+                    <option value="Cancelada">Cancelada</option>
+                </select>
+            </div>
+
+            <!-- Búsqueda Cliente -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-search text-gold mr-1"></i>
+                    Buscar Cliente
+                </label>
+                <input type="text" 
+                       asp-for="BusquedaCliente" 
+                       placeholder="Nombre o correo..."
+                       class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50">
+            </div>
+
+            <!-- Botones -->
+            <div class="md:col-span-2 lg:col-span-3 flex gap-3">
+                <button type="submit" class="btn bg-gold hover:bg-yellow-600 text-black font-semibold">
+                    <i class="fas fa-search mr-2"></i>
+                    Filtrar
+                </button>
+                <a href="/Admin/Reservas/Index" class="btn bg-slate-700 hover:bg-slate-600 border-slate-600 text-white">
+                    <i class="fas fa-redo mr-2"></i>
+                    Limpiar
+                </a>
+            </div>
+        </form>
     </div>
-  </div>
+
+    <!-- Tabla de Reservas -->
+    <div class="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden">
+        @if (Model.Reservas.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-700 border-b border-slate-600">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                Fecha & Hora
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                Cliente
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                Barbero
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                Servicio
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                Precio
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                Estado
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700">
+                        @foreach (var reserva in Model.Reservas)
+                        {
+                            <tr class="hover:bg-slate-700 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-white font-medium">@reserva.DisplayFecha</span>
+                                        <span class="text-sm text-gray-400">@reserva.DisplayHora</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-white font-medium">@reserva.ClienteNombre</span>
+                                        <span class="text-sm text-gray-400">@reserva.ClienteCorreo</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-gray-300">@reserva.BarberoNombre</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-gray-300">@reserva.ServicioNombre</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-green-400 font-semibold">$@reserva.ServicioPrecio.ToString("N2")</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 text-xs font-bold text-white rounded-full @reserva.EstadoClass">
+                                        @reserva.Estado
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex gap-2">
+                                        @if (reserva.Estado == "Pendiente")
+                                        {
+                                            <form method="post" asp-page-handler="CambiarEstado" class="inline">
+                                                <input type="hidden" name="reservaId" value="@reserva.ReservaID" />
+                                                <input type="hidden" name="nuevoEstado" value="Confirmada" />
+                                                <button type="submit" 
+                                                        class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded transition"
+                                                        title="Confirmar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                            <form method="post" asp-page-handler="CambiarEstado" class="inline">
+                                                <input type="hidden" name="reservaId" value="@reserva.ReservaID" />
+                                                <input type="hidden" name="nuevoEstado" value="Cancelada" />
+                                                <button type="submit" 
+                                                        class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded transition"
+                                                        title="Cancelar">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        @if (reserva.Estado == "Confirmada")
+                                        {
+                                            <form method="post" asp-page-handler="CambiarEstado" class="inline">
+                                                <input type="hidden" name="reservaId" value="@reserva.ReservaID" />
+                                                <input type="hidden" name="nuevoEstado" value="Completada" />
+                                                <button type="submit" 
+                                                        class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded transition"
+                                                        title="Marcar completada">
+                                                    <i class="fas fa-check-double"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="p-12 text-center">
+                <i class="fas fa-calendar-times text-6xl text-gray-600 mb-4"></i>
+                <p class="text-gray-400 text-lg">No se encontraron reservas con los filtros seleccionados</p>
+            </div>
+        }
+    </div>
 </div>
+
+@section Styles {
+    <style>
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border-width: 2px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+}

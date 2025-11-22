@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using BarberPro.Data;
 using BarberPro.Models;
+using BarberoModel = BarberPro.Models.Barbero;
 
 namespace BarberPro.Pages.Admin.HorariosBarbero
 {
@@ -18,7 +19,7 @@ namespace BarberPro.Pages.Admin.HorariosBarbero
         [BindProperty]
         public HorarioBarbero Horario { get; set; } = new();
 
-        public List<Barbero> Barberos { get; set; } = new();
+        public List<BarberoModel> Barberos { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {

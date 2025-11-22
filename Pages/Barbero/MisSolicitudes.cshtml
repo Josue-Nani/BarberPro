@@ -1,0 +1,125 @@
+@page
+@model BarberPro.Pages.Barbero.MisSolicitudesModel
+@{
+    ViewData["Title"] = "Mis Solicitudes";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-3xl font-bold text-gray-100 mb-2">
+                <i class="fas fa-list-alt text-gold mr-2"></i>
+                Mis Solicitudes de Inactividad
+            </h2>
+            <p class="text-gray-400">Historial de todas tus solicitudes de tiempo libre</p>
+        </div>
+        <a 
+            href="/Barbero/SolicitarInactividad" 
+            class="bg-gold hover:bg-gold-dark text-slate-900 font-semibold py-2 px-4 rounded-lg transition flex items-center gap-2"
+        >
+            <i class="fas fa-plus"></i>
+            Nueva Solicitud
+        </a>
+    </div>
+
+    <!-- Success Message -->
+    @if (!string.IsNullOrEmpty(Model.MensajeExito))
+    {
+        <div class="glass-card rounded-xl p-4 mb-6 border-2 border-green-500/50 bg-green-900/20">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+                <p class="text-green-400">@Model.MensajeExito</p>
+            </div>
+        </div>
+    }
+
+    <!-- Solicitudes List -->
+    @if (!Model.Solicitudes.Any())
+    {
+        <div class="glass-card rounded-xl p-12 text-center">
+            <i class="fas fa-inbox text-gray-600 text-6xl mb-4"></i>
+            <p class="text-gray-400 text-lg">No tienes solicitudes registradas</p>
+            <a 
+                href="/Barbero/SolicitarInactividad" 
+                class="inline-block mt-4 bg-gold hover:bg-gold-dark text-slate-900 font-semibold py-2 px-6 rounded-lg transition"
+            >
+                Crear Primera Solicitud
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="grid gap-4">
+            @foreach (var solicitud in Model.Solicitudes)
+            {
+                var estadoClass = solicitud.Estado switch
+                {
+                    "Pendiente" => "bg-yellow-900/30 text-yellow-400 border-yellow-500/50",
+                    "Aprobada" => "bg-green-900/30 text-green-400 border-green-500/50",
+                    "Rechazada" => "bg-red-900/30 text-red-400 border-red-500/50",
+                    _ => "bg-gray-900/30 text-gray-400 border-gray-500/50"
+                };
+
+                var iconoEstado = solicitud.Estado switch
+                {
+                    "Pendiente" => "fa-clock",
+                    "Aprobada" => "fa-check-circle",
+                    "Rechazada" => "fa-times-circle",
+                    _ => "fa-question-circle"
+                };
+
+                <div class="glass-card rounded-xl p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
+                                <i class="fas fa-calendar-times text-slate-900 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-100">
+                                    @solicitud.FechaInicio.ToString("dd/MM/yyyy") - @solicitud.FechaFin.ToString("dd/MM/yyyy")
+                                </h3>
+                                <p class="text-sm text-gray-400">
+                                    Solicitado el @solicitud.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")
+                                </p>
+                            </div>
+                        </div>
+                        <span class="@estadoClass px-4 py-2 rounded-full text-sm font-semibold border-2 flex items-center gap-2">
+                            <i class="fas @iconoEstado"></i>
+                            @solicitud.Estado
+                        </span>
+                    </div>
+
+                    <!-- Motivo -->
+                    <div class="bg-slate-800/50 rounded-lg p-4 mb-4">
+                        <p class="text-sm text-gray-400 mb-1">Motivo:</p>
+                        <p class="text-gray-200">@solicitud.Motivo</p>
+                    </div>
+
+                    <!-- Respuesta del Admin (si existe) -->
+                    @if (solicitud.FechaRespuesta.HasValue)
+                    {
+                        <div class="border-t border-slate-700 pt-4">
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-user-shield text-gold text-lg mt-1"></i>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-400">
+                                        Respondido por @(solicitud.AdminRespondente?.NombreCompleto ?? "Administrador") 
+                                        el @solicitud.FechaRespuesta.Value.ToString("dd/MM/yyyy HH:mm")
+                                    </p>
+                                    @if (!string.IsNullOrEmpty(solicitud.MotivoRechazo) && solicitud.Estado == "Rechazada")
+                                    {
+                                        <div class="mt-2 bg-red-900/20 border border-red-500/50 rounded-lg p-3">
+                                            <p class="text-sm text-gray-400 mb-1">Motivo del rechazo:</p>
+                                            <p class="text-red-300 text-sm">@solicitud.MotivoRechazo</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

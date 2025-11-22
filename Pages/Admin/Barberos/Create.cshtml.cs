@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BarberoModel = BarberPro.Models.Barbero;
 
 namespace BarberPro.Pages.Admin.Barberos
 {
@@ -22,7 +23,7 @@ namespace BarberPro.Pages.Admin.Barberos
         }
 
         [BindProperty]
-        public Barbero Barbero { get; set; } = new();
+        public BarberoModel Barbero { get; set; } = new();
 
         // Selected schedule IDs from the multi‑select
         [BindProperty]

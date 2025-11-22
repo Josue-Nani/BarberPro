@@ -25,6 +25,7 @@ public class BarberContext : DbContext
     public DbSet<Servicio> Servicios { get; set; }
     public DbSet<Barbero> Barberos { get; set; }
     public DbSet<HorarioBarbero> HorariosBarbero { get; set; }
+    public DbSet<SolicitudDisponibilidad> SolicitudesDisponibilidad { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -100,6 +101,35 @@ public class BarberContext : DbContext
                   .WithMany()
                   .HasForeignKey(c => c.UsuarioID)
                   .HasConstraintName("FK_Clientes_Usuarios");
+        });
+
+        // SolicitudDisponibilidad entity configuration
+        modelBuilder.Entity<SolicitudDisponibilidad>(entity =>
+        {
+            entity.ToTable("SolicitudesDisponibilidad");
+            entity.HasKey(e => e.SolicitudID);
+            entity.Property(e => e.SolicitudID).HasColumnName("SolicitudID");
+            entity.Property(e => e.BarberoID).HasColumnName("BarberoID");
+            entity.Property(e => e.FechaInicio).HasColumnName("FechaInicio").HasColumnType("date");
+            entity.Property(e => e.FechaFin).HasColumnName("FechaFin").HasColumnType("date");
+            entity.Property(e => e.Motivo).HasColumnName("Motivo").HasMaxLength(500).IsRequired();
+            entity.Property(e => e.Estado).HasColumnName("Estado").HasMaxLength(50).HasDefaultValue("Pendiente");
+            entity.Property(e => e.FechaSolicitud).HasColumnName("FechaSolicitud").HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.FechaRespuesta).HasColumnName("FechaRespuesta");
+            entity.Property(e => e.AdminRespondenteID).HasColumnName("AdminRespondenteID");
+            entity.Property(e => e.MotivoRechazo).HasColumnName("MotivoRechazo").HasMaxLength(500);
+
+            // relationships
+            entity.HasOne(s => s.Barbero)
+                  .WithMany()
+                  .HasForeignKey(s => s.BarberoID)
+                  .HasConstraintName("FK_Solicitudes_Barberos");
+
+            entity.HasOne(s => s.AdminRespondente)
+                  .WithMany()
+                  .HasForeignKey(s => s.AdminRespondenteID)
+                  .HasConstraintName("FK_Solicitudes_Usuarios")
+                  .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

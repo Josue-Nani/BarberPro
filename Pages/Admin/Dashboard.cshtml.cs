@@ -41,6 +41,26 @@ namespace BarberPro.Pages.Admin
         public class TopServiceRow { public string Name { get; set; } = string.Empty; public int Count { get; set; } }
         public List<TopServiceRow> TopServices { get; set; } = new List<TopServiceRow>();
 
+        // Frequent clients
+        public class FrequentClientRow
+        {
+            public string ClienteNombre { get; set; } = string.Empty;
+            public string ClienteCorreo { get; set; } = string.Empty;
+            public int TotalReservas { get; set; }
+        }
+        public List<FrequentClientRow> FrequentClients { get; set; } = new List<FrequentClientRow>();
+
+        // Peak hours
+        public class PeakHourRow
+        {
+            public int Hora { get; set; }
+            public string HoraDisplay => $"{Hora:D2}:00";
+            public int ReservasCount { get; set; }
+        }
+        public List<PeakHourRow> PeakHours { get; set; } = new List<PeakHourRow>();
+        public string PeakHoursLabelsJson { get; set; } = "[]";
+        public string PeakHoursDataJson { get; set; } = "[]";
+
         public async Task OnGetAsync(int months = 6)
         {
             MonthsToShow = Math.Clamp(months, 1, 24);
@@ -114,6 +134,38 @@ namespace BarberPro.Pages.Admin
                 .ToDictionaryAsync(s => s.ServicioID, s => s.Nombre);
 
             TopServices = topServices.Select(t => new TopServiceRow { Name = svcDict.ContainsKey(t.ServicioID) ? svcDict[t.ServicioID] : ("#" + t.ServicioID), Count = t.Count }).ToList();
+
+            // Frequent clients (top 5 by number of reservations)
+            var frequentClients = await (from r in _context.Reservas
+                                        join c in _context.Clientes on r.ClienteID equals c.ClienteID
+                                        join u in _context.Usuarios on c.UsuarioID equals u.UsuarioID
+                                        group r by new { c.ClienteID, u.NombreCompleto, u.Correo } into g
+                                        orderby g.Count() descending
+                                        select new FrequentClientRow
+                                        {
+                                            ClienteNombre = g.Key.NombreCompleto,
+                                            ClienteCorreo = g.Key.Correo,
+                                            TotalReservas = g.Count()
+                                        }).Take(5).ToListAsync();
+            FrequentClients = frequentClients;
+
+            // Peak hours analysis
+            var peakHours = await _context.Reservas
+                .GroupBy(r => r.HoraInicio.Hours)
+                .Select(g => new PeakHourRow
+                {
+                    Hora = g.Key,
+                    ReservasCount = g.Count()
+                })
+                .OrderByDescending(p => p.ReservasCount)
+                .ToListAsync();
+            PeakHours = peakHours;
+
+            // Serialize peak hours for Chart.js
+            var peakHoursLabels = peakHours.Select(p => p.HoraDisplay).ToList();
+            var peakHoursData = peakHours.Select(p => p.ReservasCount).ToList();
+            PeakHoursLabelsJson = JsonSerializer.Serialize(peakHoursLabels);
+            PeakHoursDataJson = JsonSerializer.Serialize(peakHoursData);
 
             // Serialize for Chart.js
             MonthLabelsJson = JsonSerializer.Serialize(labels);

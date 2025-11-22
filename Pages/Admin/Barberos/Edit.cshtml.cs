@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using BarberPro.Data;
 using BarberPro.Models;
+using BarberoModel = BarberPro.Models.Barbero;
 
 namespace BarberPro.Pages.Admin.Barberos
 {
@@ -19,7 +20,7 @@ namespace BarberPro.Pages.Admin.Barberos
         }
 
         [BindProperty]
-        public Barbero Barbero { get; set; } = new();
+        public BarberoModel Barbero { get; set; } = new();
 
         [BindProperty]
         public List<int> HorariosSeleccionados { get; set; } = new();
@@ -34,7 +35,7 @@ namespace BarberPro.Pages.Admin.Barberos
             Barbero = await _context.Barberos
                 .Include(b => b.Usuario)
                 .Include(b => b.Horarios)
-                .FirstOrDefaultAsync(b => b.BarberoID == id) ?? new Barbero();
+                .FirstOrDefaultAsync(b => b.BarberoID == id) ?? new BarberoModel();
 
             if (Barbero.BarberoID == 0) return NotFound();
 

@@ -84,8 +84,23 @@ async function loadBarberos() {
         }
 
         // Render barberos
-        barberosGrid.innerHTML = barberos.map(barbero => `
-            <div class="premium-card group cursor-pointer barbero-card" data-barbero-id="${barbero.barberoID}" data-barbero-nombre="${barbero.nombre}">
+        barberosGrid.innerHTML = barberos.map(barbero => {
+            const disponibilidad = barbero.disponibilidad || 'Disponible';
+            const esDisponible = disponibilidad === 'Disponible';
+
+            // Get badge configuration based on availability
+            const badgeConfig = {
+                'Disponible': { class: 'badge-success', icon: '🟢', text: 'Disponible' },
+                'No Disponible': { class: 'badge-error', icon: '🔴', text: 'No Disponible' },
+                'Ocupado': { class: 'badge-warning', icon: '🟡', text: 'Ocupado' }
+            };
+            const badge = badgeConfig[disponibilidad] || badgeConfig['Disponible'];
+
+            return `
+            <div class="premium-card group ${esDisponible ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'} barbero-card" 
+                 data-barbero-id="${barbero.barberoID}" 
+                 data-barbero-nombre="${barbero.nombre}"
+                 data-barbero-disponibilidad="${disponibilidad}">
                 <div class="card-body">
                     <div class="flex items-center gap-4 mb-3">
                         <div class="avatar placeholder">
@@ -96,12 +111,19 @@ async function loadBarberos() {
                         <div class="flex-1">
                             <h3 class="card-title text-xl">${barbero.nombre}</h3>
                             <p class="text-sm opacity-60">${barbero.especialidades || 'Barbero profesional'}</p>
+                            <div class="mt-2">
+                                <div class="badge ${badge.class} gap-2">
+                                    <span>${badge.icon}</span>
+                                    ${badge.text}
+                                </div>
+                            </div>
                         </div>
                         <div class="badge badge-primary badge-lg shadow-lg hidden selected-badge">Seleccionado</div>
                     </div>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
 
         // Add click handlers
         initializeBarberoSelection();
@@ -117,6 +139,19 @@ function initializeBarberoSelection() {
 
     barberoCards.forEach(card => {
         card.addEventListener('click', function () {
+            // Check availability first
+            const disponibilidad = this.dataset.barberoDisponibilidad || 'Disponible';
+
+            if (disponibilidad !== 'Disponible') {
+                // Show error message for unavailable barbers
+                const messages = {
+                    'No Disponible': 'Este barbero no está disponible en este momento. Por favor selecciona otro barbero.',
+                    'Ocupado': 'Este barbero está ocupado actualmente. Por favor selecciona otro barbero.'
+                };
+                alert(messages[disponibilidad] || 'Este barbero no está disponible.');
+                return; // Prevent selection
+            }
+
             // Remove selection from all cards
             barberoCards.forEach(c => {
                 c.classList.remove('border-primary', 'scale-105');

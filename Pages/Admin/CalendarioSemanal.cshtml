@@ -1,0 +1,200 @@
+@page
+@model BarberPro.Pages.Admin.CalendarioSemanalModel
+@{
+    ViewData["Title"] = "Calendario Semanal";
+    Layout = "~/Pages/Admin/_AdminLayout.cshtml";
+}
+
+<div class="min-h-screen bg-slate-900 p-6">
+    <!-- Header -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <i class="fas fa-calendar-week text-gold mr-3"></i>
+                Calendario Semanal
+            </h1>
+            <p class="text-gray-400">
+                Semana del @Model.InicioSemana.ToString("dd/MM/yyyy") al @Model.FinSemana.ToString("dd/MM/yyyy")
+            </p>
+        </div>
+
+        <!-- Navegación entre semanas -->
+        <div class="flex gap-2">
+            <a asp-page="/Admin/CalendarioSemanal" 
+               asp-route-fecha="@Model.InicioSemana.AddDays(-7).ToString("yyyy-MM-dd")"
+               class="btn bg-slate-700 hover:bg-slate-600 border-slate-600 text-white">
+                <i class="fas fa-chevron-left mr-2"></i>
+                Anterior
+            </a>
+            <a asp-page="/Admin/CalendarioSemanal"
+               class="btn bg-gold hover:bg-yellow-600 border-gold text-black font-semibold">
+                <i class="fas fa-calendar-day mr-2"></i>
+                Hoy
+            </a>
+            <a asp-page="/Admin/CalendarioSemanal" 
+               asp-route-fecha="@Model.InicioSemana.AddDays(7).ToString("yyyy-MM-dd")"
+               class="btn bg-slate-700 hover:bg-slate-600 border-slate-600 text-white">
+                Siguiente
+                <i class="fas fa-chevron-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="mb-6 flex flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-green-900 bg-opacity-30 border-2 border-green-600 rounded"></div>
+            <span class="text-sm text-gray-300">Disponible</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-blue-900 bg-opacity-40 border-2 border-blue-500 rounded"></div>
+            <span class="text-sm text-gray-300">Reservado (con cliente)</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-red-900 bg-opacity-30 border-2 border-red-600 rounded"></div>
+            <span class="text-sm text-gray-300">Ocupado</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-slate-800 border-2 border-slate-700 rounded"></div>
+            <span class="text-sm text-gray-300">Sin horario</span>
+        </div>
+    </div>
+
+    @if (Model.Barberos.Count == 0)
+    {
+        <div class="bg-yellow-900 bg-opacity-20 border border-yellow-600 rounded-lg p-6 text-center">
+            <i class="fas fa-exclamation-triangle text-yellow-500 text-3xl mb-3"></i>
+            <p class="text-yellow-200">No hay barberos registrados en el sistema.</p>
+        </div>
+    }
+    else
+    {
+        <!-- Calendario por barbero -->
+        @foreach (var barbero in Model.Barberos)
+        {
+            <div class="mb-8 bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden">
+                <!-- Header del barbero -->
+                <div class="bg-gradient-to-r from-gold to-yellow-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-black flex items-center gap-3">
+                        <i class="fas fa-cut"></i>
+                        @barbero.Usuario?.NombreCompleto
+                    </h2>
+                    @if (!string.IsNullOrEmpty(barbero.Especialidades))
+                    {
+                        <p class="text-sm text-black opacity-80 mt-1">
+                            <i class="fas fa-star mr-1"></i>
+                            @barbero.Especialidades
+                        </p>
+                    }
+                </div>
+
+                <!-- Grid del calendario -->
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[800px]">
+                        <thead>
+                            <tr class="bg-slate-700">
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider border border-slate-600">
+                                    Hora
+                                </th>
+                                @foreach (var dia in Model.Dias)
+                                {
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-300 uppercase tracking-wider border border-slate-600">
+                                        <div>@dia.NombreDia</div>
+                                        <div class="text-gold font-bold mt-1">@dia.Fecha.ToString("dd/MM")</div>
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var hora in Model.Horas)
+                            {
+                                <tr class="hover:bg-slate-700 transition">
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-300 border border-slate-600">
+                                        @hora:00
+                                    </td>
+                                    @foreach (var dia in Model.Dias)
+                                    {
+                                        var horario = Model.ObtenerHorario(dia.Fecha, hora, barbero.BarberoID);
+                                        var reserva = Model.ObtenerReserva(dia.Fecha, hora, barbero.BarberoID);
+                                        
+                                        string claseEstado;
+                                        if (reserva != null)
+                                        {
+                                            // Hay reserva confirmada - mostrar en azul
+                                            claseEstado = "bg-blue-900 bg-opacity-40 border-blue-500";
+                                        }
+                                        else
+                                        {
+                                            claseEstado = Model.ObtenerClaseEstado(horario);
+                                        }
+                                        
+                                        <td class="px-2 py-2 border border-slate-600">
+                                            <div class="@claseEstado border-2 rounded-lg p-2 min-h-[60px] flex items-center justify-center">
+                                                @if (reserva != null)
+                                                {
+                                                    <div class="text-center">
+                                                        <div class="text-xs font-bold text-blue-300">
+                                                            <i class="fas fa-user-check mr-1"></i>
+                                                            Reservado
+                                                        </div>
+                                                        <div class="text-xs text-gray-300 mt-1">
+                                                            @reserva.HoraInicio.ToString(@"hh\:mm") - @reserva.HoraFin.ToString(@"hh\:mm")
+                                                        </div>
+                                                        <div class="text-xs text-gray-400 mt-1">
+                                                            @(reserva.Cliente?.Usuario?.NombreCompleto ?? "Cliente")
+                                                        </div>
+                                                        <div class="text-xs text-gold mt-1">
+                                                            @reserva.Servicio?.Nombre
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else if (horario != null)
+                                                {
+                                                    <div class="text-center">
+                                                        <div class="text-xs font-semibold @(horario.Disponible ? "text-green-400" : "text-red-400")">
+                                                            @Model.ObtenerTextoEstado(horario)
+                                                        </div>
+                                                        <div class="text-xs text-gray-400 mt-1">
+                                                            @horario.HoraInicio.ToString(@"hh\:mm") - @horario.HoraFin.ToString(@"hh\:mm")
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-xs text-gray-500">-</span>
+                                                }
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+
+    <!-- Botón para gestionar horarios -->
+    <div class="mt-8 text-center">
+        <a asp-page="/Admin/HorariosBarbero/Index" class="btn bg-gold hover:bg-yellow-600 border-gold text-black font-semibold">
+            <i class="fas fa-cog mr-2"></i>
+            Gestionar Horarios
+        </a>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border-width: 2px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+}

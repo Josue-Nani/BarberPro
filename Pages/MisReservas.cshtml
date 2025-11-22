@@ -1,0 +1,174 @@
+@page
+@model BarberPro.Pages.MisReservasModel
+@{
+    ViewData["Title"] = "Mis Reservas";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Hero Section -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-white mb-2">
+            <i class="fas fa-calendar-check text-gold mr-3"></i>
+            Mis Reservas
+        </h1>
+        <p class="text-gray-400 text-lg">Historial completo de tus citas en BarberPro</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="alert alert-error shadow-lg mb-6">
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>@Model.MensajeError</span>
+            </div>
+        </div>
+    }
+    else if (!Model.Reservas.Any())
+    {
+        <!-- Empty State -->
+        <div class="card bg-slate-800 shadow-xl border border-slate-700">
+            <div class="card-body items-center text-center py-16">
+                <div class="w-24 h-24 bg-slate-700 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-calendar-times text-5xl text-gray-500"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-3">No tienes reservas aún</h2>
+                <p class="text-gray-400 mb-6">¡Agenda tu primera cita y comienza a disfrutar de nuestros servicios!</p>
+                <a href="/Reservar" class="btn bg-gold hover:bg-yellow-600 text-black font-bold">
+                    <i class="fas fa-plus mr-2"></i>
+                    Hacer una Reserva
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="stat bg-slate-800 rounded-lg border border-slate-700">
+                <div class="stat-title text-gray-400">Total Reservas</div>
+                <div class="stat-value text-gold">@Model.Reservas.Count</div>
+            </div>
+            <div class="stat bg-slate-800 rounded-lg border border-slate-700">
+                <div class="stat-title text-gray-400">Confirmadas</div>
+                <div class="stat-value text-green-500">@Model.Reservas.Count(r => r.Estado == "Confirmada")</div>
+            </div>
+            <div class="stat bg-slate-800 rounded-lg border border-slate-700">
+                <div class="stat-title text-gray-400">Pendientes</div>
+                <div class="stat-value text-yellow-500">@Model.Reservas.Count(r => r.Estado == "Pendiente")</div>
+            </div>
+            <div class="stat bg-slate-800 rounded-lg border border-slate-700">
+                <div class="stat-title text-gray-400">Completadas</div>
+                <div class="stat-value text-blue-500">@Model.Reservas.Count(r => r.Estado == "Completada")</div>
+            </div>
+        </div>
+
+        <!-- Separar futuras y pasadas -->
+        var reservasFuturas = Model.Reservas.Where(r => r.EsFutura && r.Estado != "Cancelada").ToList();
+        var reservasPasadas = Model.Reservas.Where(r => r.EsPasada || r.Estado == "Cancelada").ToList();
+
+        <!-- Reservas Futuras -->
+        @if (reservasFuturas.Any())
+        {
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-white mb-4">
+                    <i class="fas fa-calendar-plus text-gold mr-2"></i>
+                    Próximas Citas
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach (var reserva in reservasFuturas)
+                    {
+                        <div class="card bg-slate-800 shadow-xl border-2 border-gold hover:scale-105 transition-transform duration-300">
+                            <div class="card-body">
+                                <!-- Fecha y Estado -->
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <div class="text-gold font-bold text-2xl">@reserva.DisplayFecha</div>
+                                        <div class="text-gray-400 text-lg">@reserva.DisplayHora</div>
+                                    </div>
+                                    <div class="badge @reserva.EstadoClass badge-lg gap-2">
+                                        @reserva.EstadoIcono @reserva.Estado
+                                    </div>
+                                </div>
+
+                                <!-- Servicio -->
+                                <div class="mb-3">
+                                    <div class="flex items-center gap-2 text-white font-semibold text-lg mb-1">
+                                        <i class="fas fa-cut text-gold"></i>
+                                        @reserva.ServicioNombre
+                                    </div>
+                                    <div class="text-gold font-bold text-xl">$@reserva.ServicioPrecio.ToString("N2")</div>
+                                </div>
+
+                                <!-- Barbero -->
+                                <div class="flex items-center gap-2 text-gray-300">
+                                    <i class="fas fa-user text-gray-500"></i>
+                                    <span>@reserva.BarberoNombre</span>
+                                </div>
+
+                                <!-- Fecha de creación -->
+                                <div class="text-xs text-gray-500 mt-3">
+                                    Reservado el @reserva.FechaCreacion.ToString("dd/MM/yyyy")
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Reservas Pasadas -->
+        @if (reservasPasadas.Any())
+        {
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-4">
+                    <i class="fas fa-history text-gray-500 mr-2"></i>
+                    Historial
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach (var reserva in reservasPasadas)
+                    {
+                        <div class="card bg-slate-800 shadow-xl border border-slate-700 opacity-75 hover:opacity-100 transition-opacity duration-300">
+                            <div class="card-body">
+                                <!-- Fecha y Estado -->
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <div class="text-gray-300 font-bold text-xl">@reserva.DisplayFecha</div>
+                                        <div class="text-gray-500">@reserva.DisplayHora</div>
+                                    </div>
+                                    <div class="badge @reserva.EstadoClass gap-2">
+                                        @reserva.EstadoIcono @reserva.Estado
+                                    </div>
+                                </div>
+
+                                <!-- Servicio -->
+                                <div class="mb-3">
+                                    <div class="flex items-center gap-2 text-gray-300 font-semibold mb-1">
+                                        <i class="fas fa-cut text-gray-500"></i>
+                                        @reserva.ServicioNombre
+                                    </div>
+                                    <div class="text-gray-400 font-bold">$@reserva.ServicioPrecio.ToString("N2")</div>
+                                </div>
+
+                                <!-- Barbero -->
+                                <div class="flex items-center gap-2 text-gray-400 text-sm">
+                                    <i class="fas fa-user text-gray-600"></i>
+                                    <span>@reserva.BarberoNombre</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- CTA para nueva reserva -->
+        <div class="mt-12 text-center">
+            <a href="/Reservar" class="btn bg-gold hover:bg-yellow-600 text-black font-bold text-lg px-8">
+                <i class="fas fa-calendar-plus mr-2"></i>
+                Agendar Nueva Cita
+            </a>
+        </div>
+    }
+</div>

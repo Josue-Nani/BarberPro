@@ -12,17 +12,18 @@
                 </svg>
             </label>
             <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-200/90 backdrop-blur-lg rounded-box w-52 border border-base-300/50">
-                <li><a asp-controller="Home" asp-action="Inicio">Inicio</a></li>
-                <li><a asp-controller="Home" asp-action="Index">Servicios</a></li>
+                <li><a href="/Home/Inicio">Inicio</a></li>
+                <li><a href="/Home/Inicio#servicios">Servicios</a></li>
                 @if (HttpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated == true)
                 {
                     <li><a href="~/Reservar">Reservar Cita</a></li>
+                    <li><a href="/MisReservas">Mis Reservas</a></li>
                 }
             </ul>
         </div>
         
         <!-- Logo -->
-        <a class="btn btn-ghost normal-case text-xl lg:text-2xl font-bold" asp-controller="Home" asp-action="Inicio">
+        <a href="/Home/Inicio" class="btn btn-ghost normal-case text-xl lg:text-2xl font-bold">
             <span class="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Barber</span><span class="text-base-content">Pro</span>
         </a>
     </div>
@@ -30,11 +31,12 @@
     <!-- Desktop menu -->
     <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1 gap-2">
-            <li><a asp-controller="Home" asp-action="Inicio" class="hover:text-primary transition-colors">Inicio</a></li>
-            <li><a asp-controller="Home" asp-action="Index" class="hover:text-primary transition-colors">Servicios</a></li>
+            <li><a href="/Home/Inicio" class="hover:text-primary transition-colors">Inicio</a></li>
+            <li><a href="/Home/Inicio#servicios" class="hover:text-primary transition-colors">Servicios</a></li>
             @if (HttpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated == true)
             {
                 <li><a href="~/Reservar" class="hover:text-primary transition-colors">Reservar Cita</a></li>
+                <li><a href="/MisReservas" class="hover:text-primary transition-colors">Mis Reservas</a></li>
             }
         </ul>
     </div>
@@ -44,13 +46,30 @@
         {
             var name = HttpContextAccessor.HttpContext.User.Identity.Name ?? HttpContextAccessor.HttpContext.Session.GetString("Usuario");
             var roleClaim = HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            var userIdClaim = HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            
+            string? fotoPerfil = null;
+            if (int.TryParse(userIdClaim, out int userId))
+            {
+                var user = await HttpContextAccessor.HttpContext!.RequestServices.GetRequiredService<BarberPro.Data.BarberContext>().Usuarios.FindAsync(userId);
+                fotoPerfil = user?.FotoPerfil;
+            }
             
             <!-- User Info Badge -->
             <div class="flex items-center gap-3 bg-base-200/50 backdrop-blur-lg rounded-full px-4 py-2 border border-primary/30">
                 <!-- Avatar -->
-                <div class="avatar placeholder">
-                    <div class="bg-gradient-to-br from-primary to-accent text-base-100 rounded-full w-10">
-                        <span class="text-lg font-bold">@(name?.Substring(0, 1).ToUpper())</span>
+                <div class="avatar">
+                    <div class="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                        @if (!string.IsNullOrEmpty(fotoPerfil))
+                        {
+                            <img src="@fotoPerfil" alt="@name" />
+                        }
+                        else
+                        {
+                            <div class="bg-gradient-to-br from-primary to-accent flex items-center justify-center h-full">
+                                <span class="text-lg font-bold text-base-100">@(name?.Substring(0, 1).ToUpper())</span>
+                            </div>
+                        }
                     </div>
                 </div>
                 
@@ -97,8 +116,8 @@
         }
         else
         {
-            <a asp-controller="Login" asp-action="Login" class="btn btn-ghost btn-sm">Iniciar sesión</a>
-            <a asp-controller="Login" asp-action="Register" class="btn btn-primary btn-sm">Registrarse</a>
+            <a href="/Login/Login" class="btn btn-ghost btn-sm">Iniciar sesión</a>
+            <a href="/Login/Register" class="btn btn-primary btn-sm">Registrarse</a>
         }
     </div>
 </div>

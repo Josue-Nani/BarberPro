@@ -36,7 +36,12 @@ namespace BarberPro.Pages.Admin.Usuarios
 
         public async Task<IActionResult> OnPost()
         {
-            if (!ModelState.IsValid) return Page();
+            if (!ModelState.IsValid)
+            {
+                // Reload Roles for the dropdown when returning to the page with validation errors
+                Roles = await _context.Roles.ToListAsync();
+                return Page();
+            }
 
             var existing = await _context.Usuarios.FirstOrDefaultAsync(u => u.UsuarioID == Usuario.UsuarioID);
             if (existing == null) return RedirectToPage("/Admin/Usuarios/Index");

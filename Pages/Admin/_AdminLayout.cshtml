@@ -1,7 +1,13 @@
-﻿@{
+﻿@inject BarberPro.Data.BarberContext DbContext
+@{
     Layout = null;
     var userName = User.Identity?.Name ?? "Admin";
     var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Administrador";
+    var isBarber = userRole == "Barbero";
+    var isAdmin = userRole == "Administrador";
+    
+    // Get count of pending solicitudes for admin notification badge
+    var solicitudesPendientes = isAdmin ? DbContext.SolicitudesDisponibilidad.Count(s => s.Estado == "Pendiente") : 0;
 }
 <!DOCTYPE html>
 <html lang="es" data-theme="barberpro">
@@ -72,6 +78,8 @@
             border: 1px solid rgba(251, 191, 36, 0.1);
         }
     </style>
+    
+    @RenderSection("Styles", required: false)
 </head>
 <body class="bg-slate-900 text-gray-100">
     <div class="flex h-screen overflow-hidden">
@@ -88,35 +96,51 @@
             
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <a href="/Admin/Dashboard" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
-                    <i class="fas fa-home w-5"></i>
-                    <span>Dashboard</span>
-                </a>
-                
-                <a href="/Admin/Barberos/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
-                    <i class="fas fa-user-tie w-5"></i>
-                    <span>Barberos</span>
-                </a>
-                
-                <a href="/Admin/HorariosBarbero/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
-                    <i class="fas fa-calendar-alt w-5"></i>
-                    <span>Horarios</span>
-                </a>
-                
-                <a href="/Admin/Servicios/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
-                    <i class="fas fa-cut w-5"></i>
-                    <span>Servicios</span>
-                </a>
-                
-                <a href="/Admin/Usuarios/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
-                    <i class="fas fa-users w-5"></i>
-                    <span>Usuarios</span>
-                </a>
+                @if (isAdmin)
+                {
+                    <a href="/Admin/Dashboard" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                        <i class="fas fa-home w-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    
+                    <a href="/Admin/Barberos/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                        <i class="fas fa-user-tie w-5"></i>
+                        <span>Barberos</span>
+                    </a>
+                    
+                    <a href="/Admin/HorariosBarbero/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                        <i class="fas fa-calendar-alt w-5"></i>
+                        <span>Horarios</span>
+                    </a>
+                    
+                    <a href="/Admin/CalendarioSemanal" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                        <i class="fas fa-calendar-week w-5"></i>
+                        <span>Calendario Semanal</span>
+                    </a>
+                    
+                    <a href="/Admin/Servicios/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                        <i class="fas fa-cut w-5"></i>
+                        <span>Servicios</span>
+                    </a>
+                    
+                    <a href="/Admin/Usuarios/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                        <i class="fas fa-users w-5"></i>
+                        <span>Usuarios</span>
+                    </a>
+                }
                 
                 <a href="/Admin/Reservas/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
                     <i class="fas fa-calendar-check w-5"></i>
-                    <span>Reservas</span>
+                    <span>@(isBarber ? "Mis Reservas" : "Reservas")</span>
                 </a>
+                
+                @if (isBarber)
+                {
+                    <a href="/Admin/Barberos/CambiarDisponibilidad" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300">
+                        <i class="fas fa-toggle-on w-5"></i>
+                        <span>Mi Disponibilidad</span>
+                    </a>
+                }
                 
                 <div class="pt-4 mt-4 border-t border-slate-700">
                     <a href="/Logout/Index" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:text-red-300">
@@ -143,10 +167,16 @@
                     <!-- User Info -->
                     <div class="flex items-center gap-4">
                         <!-- Notifications -->
-                        <button class="relative text-gray-400 hover:text-gold transition">
-                            <i class="fas fa-bell text-xl"></i>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
-                        </button>
+                        @if (isAdmin)
+                        {
+                            <a href="/Admin/Notificaciones" class="relative text-gray-400 hover:text-gold transition">
+                                <i class="fas fa-bell text-xl"></i>
+                                @if (solicitudesPendientes > 0)
+                                {
+                                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">@solicitudesPendientes</span>
+                                }
+                            </a>
+                        }
                         
                         <!-- User Menu -->
                         <div class="flex items-center gap-3 px-4 py-2 bg-slate-700 rounded-lg">
