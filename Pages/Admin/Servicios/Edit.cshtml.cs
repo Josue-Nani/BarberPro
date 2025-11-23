@@ -14,12 +14,13 @@ namespace BarberPro.Pages.Admin.Servicios
         public EditModel(BarberContext context) => _context = context;
 
         [BindProperty]
-        public Servicio Servicio { get; set; }
+        public Servicio Servicio { get; set; } = null!;
 
         public IActionResult OnGet(int id)
         {
-            Servicio = _context.Servicios.FirstOrDefault(s => s.ServicioID == id);
-            if (Servicio == null) return RedirectToPage("/Admin/Servicios/Index");
+            var servicio = _context.Servicios.FirstOrDefault(s => s.ServicioID == id);
+            if (servicio == null) return RedirectToPage("/Admin/Servicios/Index");
+            Servicio = servicio;
             return Page();
         }
 

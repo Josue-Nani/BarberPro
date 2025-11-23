@@ -9,10 +9,12 @@ namespace BarberPro.Pages
     public class GetHorariosDisponiblesModel : PageModel
     {
         private readonly BarberContext _context;
+        private readonly Services.DisponibilidadService _disponibilidadService;
 
-        public GetHorariosDisponiblesModel(BarberContext context)
+        public GetHorariosDisponiblesModel(BarberContext context, Services.DisponibilidadService disponibilidadService)
         {
             _context = context;
+            _disponibilidadService = disponibilidadService;
         }
 
         public async Task<IActionResult> OnGetAsync(int barberoId, string fecha, int servicioId)
@@ -20,6 +22,21 @@ namespace BarberPro.Pages
             if (!DateTime.TryParse(fecha, out var parsedFecha))
             {
                 return new JsonResult(new { error = "Fecha inválida" });
+            }
+
+            // Check if the date is configured as a day off
+            var esDiaLibre = await _disponibilidadService.EsDiaLibre(barberoId, parsedFecha.Date);
+            if (esDiaLibre)
+            {
+                // Return empty slots if it's a configured day off
+                return new JsonResult(new
+                {
+                    fecha = parsedFecha.ToString("yyyy-MM-dd"),
+                    barberoId = barberoId,
+                    servicioId = servicioId,
+                    duracionMinutos = 0,
+                    slots = new List<object>()
+                });
             }
 
             var servicio = await _context.Servicios.FindAsync(servicioId);
@@ -32,7 +49,7 @@ namespace BarberPro.Pages
 
             // Get barbero's schedule blocks for the date
             var horarios = await _context.HorariosBarbero
-                .Where(h => h.BarberoID == barberoId && h.Fecha.Date == parsedFecha.Date && h.Disponible)
+                .Where(h => h.BarberoID == barberoId && h.Fecha.HasValue && h.Fecha.Value.Date == parsedFecha.Date && h.Disponible)
                 .ToListAsync();
 
             // Get existing reservations for that barbero on that date (excluding cancelled ones)

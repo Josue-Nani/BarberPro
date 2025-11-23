@@ -11,14 +11,16 @@ namespace BarberPro.Pages.Api
     public class GetHorariosModel : PageModel
     {
         private readonly BarberContext _context;
+        private readonly Services.DisponibilidadService _disponibilidadService;
 
-        public GetHorariosModel(BarberContext context)
+        public GetHorariosModel(BarberContext context, Services.DisponibilidadService disponibilidadService)
         {
             _context = context;
+            _disponibilidadService = disponibilidadService;
         }
 
         // Accept optional servicioId so API can determine duration server-side if client didn't send it
-        public IActionResult OnGet(int? barberoId, DateTime? fecha, int duracion = 0, int? servicioId = null)
+        public async Task<IActionResult> OnGetAsync(int? barberoId, DateTime? fecha, int duracion = 0, int? servicioId = null)
         {
             if (!barberoId.HasValue)
             {
@@ -26,6 +28,14 @@ namespace BarberPro.Pages.Api
             }
 
             var targetDate = fecha?.Date ?? DateTime.Today;
+
+            // Check if the date is configured as a day off
+            var esDiaLibre = await _disponibilidadService.EsDiaLibre(barberoId.Value, targetDate);
+            if (esDiaLibre)
+            {
+                // Return empty list if it's a configured day off
+                return new JsonResult(new List<object>());
+            }
 
             // Determine service duration: prefer servicioId, then duracion parameter, then default 60
             int durationMinutes = 60;
@@ -42,11 +52,17 @@ namespace BarberPro.Pages.Api
                 durationMinutes = duracion;
             }
 
-            // Load horarios for that barbero and date
+            // Load horarios for that barbero and date. Include single-day horarios and period horarios that contain the target date.
             var horarios = _context.HorariosBarbero
-                .Where(h => h.BarberoID == barberoId && h.Disponible && h.Fecha.Date == targetDate)
+                .Where(h => h.BarberoID == barberoId && h.Disponible && h.Fecha.HasValue && (
+                    (h.Fecha.Value.Date == targetDate) || (h.FechaFin.HasValue && h.Fecha.Value.Date <= targetDate && h.FechaFin.Value.Date >= targetDate)
+                ))
                 .OrderBy(h => h.HoraInicio)
                 .ToList();
+
+            // Exclude horarios that explicitly mark this weekday as free (e.g., period with SabadoLibre true)
+            var dow = targetDate.DayOfWeek;
+            horarios = horarios.Where(h => !h.EsDiaLibre(dow)).ToList();
 
             // Load existing reservas for that barbero and date
             var reservas = _context.Reservas
@@ -78,15 +94,16 @@ namespace BarberPro.Pages.Api
 
                     if (!conflict)
                     {
+                        // Use targetDate as the slot's date even if horario.Fecha is earlier (period schedule)
                         slots.Add(new
                         {
                             horarioID = h.HorarioID,
-                            fecha = h.Fecha.ToString("yyyy-MM-dd"),
-                            fechaDisplay = h.Fecha.ToString("dd/MM/yyyy"),
+                            fecha = targetDate.ToString("yyyy-MM-dd"),
+                            fechaDisplay = targetDate.ToString("dd/MM/yyyy"),
                             horaInicio = slotStart.ToString(@"hh\:mm"),
                             horaFin = slotEnd.ToString(@"hh\:mm"),
                             disponible = true,
-                            displayText = $"{h.Fecha:dd/MM/yyyy} - {slotStart:hh\\:mm} a {slotEnd:hh\\:mm}"
+                            displayText = $"{targetDate:dd/MM/yyyy} - {slotStart:hh\\:mm} a {slotEnd:hh\\:mm}"
                         });
                     }
 

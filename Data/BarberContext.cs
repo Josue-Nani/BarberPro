@@ -26,6 +26,7 @@ public class BarberContext : DbContext
     public DbSet<Barbero> Barberos { get; set; }
     public DbSet<HorarioBarbero> HorariosBarbero { get; set; }
     public DbSet<SolicitudDisponibilidad> SolicitudesDisponibilidad { get; set; }
+    public DbSet<ConfiguracionDisponibilidad> ConfiguracionesDisponibilidad { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,9 +67,17 @@ public class BarberContext : DbContext
             entity.Property(e => e.HorarioID).HasColumnName("HorarioID");
             entity.Property(e => e.BarberoID).HasColumnName("BarberoID");
             entity.Property(e => e.Fecha).HasColumnName("Fecha").HasColumnType("date");
+            entity.Property(e => e.FechaFin).HasColumnName("FechaFin").HasColumnType("date");
             entity.Property(e => e.HoraInicio).HasColumnName("HoraInicio").HasColumnType("time");
             entity.Property(e => e.HoraFin).HasColumnName("HoraFin").HasColumnType("time");
             entity.Property(e => e.Disponible).HasColumnName("Disponible").HasDefaultValue(true);
+            entity.Property(e => e.LunesLibre).HasColumnName("LunesLibre");
+            entity.Property(e => e.MartesLibre).HasColumnName("MartesLibre");
+            entity.Property(e => e.MiercolesLibre).HasColumnName("MiercolesLibre");
+            entity.Property(e => e.JuevesLibre).HasColumnName("JuevesLibre");
+            entity.Property(e => e.ViernesLibre).HasColumnName("ViernesLibre");
+            entity.Property(e => e.SabadoLibre).HasColumnName("SabadoLibre");
+            entity.Property(e => e.DomingoLibre).HasColumnName("DomingoLibre");
         });
 
         modelBuilder.Entity<Reserva>(entity =>
@@ -129,6 +138,40 @@ public class BarberContext : DbContext
                   .WithMany()
                   .HasForeignKey(s => s.AdminRespondenteID)
                   .HasConstraintName("FK_Solicitudes_Usuarios")
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ConfiguracionDisponibilidad entity configuration
+        modelBuilder.Entity<ConfiguracionDisponibilidad>(entity =>
+        {
+            entity.ToTable("ConfiguracionesDisponibilidad");
+            entity.HasKey(e => e.ConfiguracionID);
+            entity.Property(e => e.ConfiguracionID).HasColumnName("ConfiguracionID");
+            entity.Property(e => e.BarberoID).HasColumnName("BarberoID");
+            entity.Property(e => e.FechaInicio).HasColumnName("FechaInicio").HasColumnType("date");
+            entity.Property(e => e.FechaFin).HasColumnName("FechaFin").HasColumnType("date");
+            entity.Property(e => e.LunesLibre).HasColumnName("LunesLibre").HasDefaultValue(false);
+            entity.Property(e => e.MartesLibre).HasColumnName("MartesLibre").HasDefaultValue(false);
+            entity.Property(e => e.MiercolesLibre).HasColumnName("MiercolesLibre").HasDefaultValue(false);
+            entity.Property(e => e.JuevesLibre).HasColumnName("JuevesLibre").HasDefaultValue(false);
+            entity.Property(e => e.ViernesLibre).HasColumnName("ViernesLibre").HasDefaultValue(false);
+            entity.Property(e => e.SabadoLibre).HasColumnName("SabadoLibre").HasDefaultValue(false);
+            entity.Property(e => e.DomingoLibre).HasColumnName("DomingoLibre").HasDefaultValue(false);
+            entity.Property(e => e.HoraInicioTrabajo).HasColumnName("HoraInicioTrabajo").HasColumnType("time");
+            entity.Property(e => e.HoraFinTrabajo).HasColumnName("HoraFinTrabajo").HasColumnType("time");
+            entity.Property(e => e.FechaCreacion).HasColumnName("FechaCreacion").HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.AdminCreadorID).HasColumnName("AdminCreadorID");
+
+            // relationships
+            entity.HasOne(c => c.Barbero)
+                  .WithMany()
+                  .HasForeignKey(c => c.BarberoID)
+                  .HasConstraintName("FK_ConfiguracionDisponibilidad_Barberos");
+
+            entity.HasOne(c => c.AdminCreador)
+                  .WithMany()
+                  .HasForeignKey(c => c.AdminCreadorID)
+                  .HasConstraintName("FK_ConfiguracionDisponibilidad_Usuarios")
                   .OnDelete(DeleteBehavior.Restrict);
         });
     }

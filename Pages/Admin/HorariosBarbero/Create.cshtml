@@ -34,12 +34,22 @@
                 <span asp-validation-for="Horario.BarberoID" class="text-red-400 text-sm mt-1 block"></span>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">
-                    <i class="fas fa-calendar mr-2 text-gold"></i>Fecha
-                </label>
-                <input asp-for="Horario.Fecha" type="date" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required />
-                <span asp-validation-for="Horario.Fecha" class="text-red-400 text-sm mt-1 block"></span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                        <i class="fas fa-calendar mr-2 text-gold"></i>Fecha Inicio
+                    </label>
+                    <input asp-for="Horario.Fecha" type="date" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required />
+                    <span asp-validation-for="Horario.Fecha" class="text-red-400 text-sm mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                        <i class="fas fa-calendar-check mr-2 text-gold"></i>Fecha Fin <span class="text-xs text-gray-500">(Opcional - para períodos)</span>
+                    </label>
+                    <input asp-for="Horario.FechaFin" type="date" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" />
+                    <span asp-validation-for="Horario.FechaFin" class="text-red-400 text-sm mt-1 block"></span>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -57,6 +67,47 @@
                     </label>
                     <input asp-for="Horario.HoraFin" type="time" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required />
                     <span asp-validation-for="Horario.HoraFin" class="text-red-400 text-sm mt-1 block"></span>
+                </div>
+            </div>
+
+            <!-- Weekday Checkboxes (visible only if FechaFin is set) -->
+            <div id="weekdaysSection" class="hidden">
+                <label class="block text-sm font-medium text-gray-300 mb-3">
+                    <i class="fas fa-calendar-week mr-2 text-gold"></i>Días de la semana libres
+                    <span class="text-xs text-gray-500 ml-2">(Solo para períodos)</span>
+                </label>
+                <div class="bg-slate-700/50 rounded-lg p-4">
+                    <p class="text-xs text-gray-400 mb-3">Marca los días que el barbero NO trabajará durante el período:</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-2 rounded transition">
+                            <input asp-for="Horario.LunesLibre" type="checkbox" class="checkbox checkbox-sm checkbox-warning" />
+                            <span class="text-gray-200 text-sm">Lunes</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-2 rounded transition">
+                            <input asp-for="Horario.MartesLibre" type="checkbox" class="checkbox checkbox-sm checkbox-warning" />
+                            <span class="text-gray-200 text-sm">Martes</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-2 rounded transition">
+                            <input asp-for="Horario.MiercolesLibre" type="checkbox" class="checkbox checkbox-sm checkbox-warning" />
+                            <span class="text-gray-200 text-sm">Miércoles</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-2 rounded transition">
+                            <input asp-for="Horario.JuevesLibre" type="checkbox" class="checkbox checkbox-sm checkbox-warning" />
+                            <span class="text-gray-200 text-sm">Jueves</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-2 rounded transition">
+                            <input asp-for="Horario.ViernesLibre" type="checkbox" class="checkbox checkbox-sm checkbox-warning" />
+                            <span class="text-gray-200 text-sm">Viernes</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-2 rounded transition">
+                            <input asp-for="Horario.SabadoLibre" type="checkbox" class="checkbox checkbox-sm checkbox-warning" />
+                            <span class="text-gray-200 text-sm">Sábado</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-2 rounded transition">
+                            <input asp-for="Horario.DomingoLibre" type="checkbox" class="checkbox checkbox-sm checkbox-warning" />
+                            <span class="text-gray-200 text-sm">Domingo</span>
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -88,4 +139,23 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Show/hide weekdays section based on FechaFin
+        const fechaFinInput = document.querySelector('input[name="Horario.FechaFin"]');
+        const weekdaysSection = document.getElementById('weekdaysSection');
+
+        function toggleWeekdaysSection() {
+            if (fechaFinInput && fechaFinInput.value) {
+                weekdaysSection.classList.remove('hidden');
+            } else {
+                weekdaysSection.classList.add('hidden');
+            }
+        }
+
+        if (fechaFinInput) {
+            fechaFinInput.addEventListener('change', toggleWeekdaysSection);
+            // Check on page load
+            toggleWeekdaysSection();
+        }
+    </script>
 }

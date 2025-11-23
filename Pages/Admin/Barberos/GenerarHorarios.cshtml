@@ -1,0 +1,221 @@
+@page
+@model BarberPro.Pages.Admin.Barberos.GenerarHorariosModel
+@{
+    ViewData["Title"] = "Generar Horarios Semanales";
+    Layout = "/Pages/Admin/_AdminLayout.cshtml";
+}
+
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <a asp-page="/Admin/HorariosBarbero/Index" class="btn btn-circle bg-slate-700 hover:bg-slate-600 border-none text-gray-200">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-100">Generar Horarios Semanales</h1>
+            <p class="text-gray-400 mt-1">Crea horarios automáticamente para un período completo</p>
+        </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-card p-4 rounded-lg border-l-4 border-blue-500">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-calendar-alt text-blue-400 text-2xl"></i>
+                <div>
+                    <p class="text-xs text-gray-400">Paso 1</p>
+                    <p class="text-sm font-semibold text-gray-200">Define el período</p>
+                </div>
+            </div>
+        </div>
+        <div class="glass-card p-4 rounded-lg border-l-4 border-green-500">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-clock text-green-400 text-2xl"></i>
+                <div>
+                    <p class="text-xs text-gray-400">Paso 2</p>
+                    <p class="text-sm font-semibold text-gray-200">Configura horario</p>
+                </div>
+            </div>
+        </div>
+        <div class="glass-card p-4 rounded-lg border-l-4 border-gold">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-calendar-times text-gold text-2xl"></i>
+                <div>
+                    <p class="text-xs text-gray-400">Paso 3</p>
+                    <p class="text-sm font-semibold text-gray-200">Marca días libres</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="glass-card rounded-xl p-6">
+        <form method="post">
+            <div asp-validation-summary="All" class="text-red-500 mb-4"></div>
+
+            <!-- Barbero Selection -->
+            <div class="form-control mb-6">
+                <label class="label">
+                    <span class="label-text text-gray-300 font-semibold text-lg">
+                        <i class="fas fa-user-tie text-gold mr-2"></i>
+                        Selecciona el Barbero
+                    </span>
+                </label>
+                <select asp-for="Input.BarberoID" class="select select-bordered w-full bg-slate-700 text-gray-100 text-lg">
+                    <option value="">-- Selecciona un barbero --</option>
+                    @foreach (var barbero in Model.Barberos)
+                    {
+                        <option value="@barbero.BarberoID">@barbero.Usuario?.NombreCompleto</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.BarberoID" class="text-red-500 text-sm mt-1"></span>
+            </div>
+
+            <div class="divider text-gold">📅 PERÍODO DE GENERACIÓN</div>
+
+            <!-- Date Range -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text text-gray-300 font-semibold">
+                            <i class="fas fa-calendar-day text-gold mr-2"></i>
+                            Fecha Inicio
+                        </span>
+                    </label>
+                    <input asp-for="Input.FechaInicio" type="date" class="input input-bordered w-full bg-slate-700 text-gray-100" />
+                    <span asp-validation-for="Input.FechaInicio" class="text-red-500 text-sm mt-1"></span>
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text text-gray-300 font-semibold">
+                            <i class="fas fa-calendar-check text-gold mr-2"></i>
+                            Fecha Fin
+                        </span>
+                    </label>
+                    <input asp-for="Input.FechaFin" type="date" class="input input-bordered w-full bg-slate-700 text-gray-100" />
+                    <span asp-validation-for="Input.FechaFin" class="text-red-500 text-sm mt-1"></span>
+                </div>
+            </div>
+
+            <div class="divider text-gold">🕐 HORARIO DE TRABAJO DIARIO</div>
+
+            <!-- Work Hours -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text text-gray-300 font-semibold">
+                            <i class="fas fa-clock text-gold mr-2"></i>
+                            Hora Inicio
+                        </span>
+                    </label>
+                    <input asp-for="Input.HoraInicio" type="time" class="input input-bordered w-full bg-slate-700 text-gray-100" />
+                    <label class="label">
+                        <span class="label-text-alt text-gray-400">Hora en que comienza el día laboral</span>
+                    </label>
+                    <span asp-validation-for="Input.HoraInicio" class="text-red-500 text-sm"></span>
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text text-gray-300 font-semibold">
+                            <i class="fas fa-clock text-gold mr-2"></i>
+                            Hora Fin
+                        </span>
+                    </label>
+                    <input asp-for="Input.HoraFin" type="time" class="input input-bordered w-full bg-slate-700 text-gray-100" />
+                    <label class="label">
+                        <span class="label-text-alt text-gray-400">Hora en que termina el día laboral</span>
+                    </label>
+                    <span asp-validation-for="Input.HoraFin" class="text-red-500 text-sm"></span>
+                </div>
+            </div>
+
+            <div class="divider text-gold">📆 DÍAS DE LA SEMANA LIBRES</div>
+
+            <!-- Weekdays -->
+            <div class="bg-slate-700 rounded-lg p-5 mb-6">
+                <p class="text-sm text-gray-300 mb-4">
+                    <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                    Marca los días que el barbero <strong class="text-gold">NO</strong> trabajará. Los horarios solo se generarán para los días laborables.
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-3 rounded transition">
+                        <input asp-for="Input.LunesLibre" type="checkbox" class="checkbox checkbox-warning" />
+                        <span class="text-gray-200 font-medium">🔵 Lunes</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-3 rounded transition">
+                        <input asp-for="Input.MartesLibre" type="checkbox" class="checkbox checkbox-warning" />
+                        <span class="text-gray-200 font-medium">🔵 Martes</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-3 rounded transition">
+                        <input asp-for="Input.MiercolesLibre" type="checkbox" class="checkbox checkbox-warning" />
+                        <span class="text-gray-200 font-medium">🔵 Miércoles</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-3 rounded transition">
+                        <input asp-for="Input.JuevesLibre" type="checkbox" class="checkbox checkbox-warning" />
+                        <span class="text-gray-200 font-medium">🔵 Jueves</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-3 rounded transition">
+                        <input asp-for="Input.ViernesLibre" type="checkbox" class="checkbox checkbox-warning" />
+                        <span class="text-gray-200 font-medium">🔵 Viernes</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-3 rounded transition">
+                        <input asp-for="Input.SabadoLibre" type="checkbox" class="checkbox checkbox-warning" checked />
+                        <span class="text-gray-200 font-medium">🟡 Sábado</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-600 p-3 rounded transition">
+                        <input asp-for="Input.DomingoLibre" type="checkbox" class="checkbox checkbox-warning" checked />
+                        <span class="text-gray-200 font-medium">🟡 Domingo</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="divider text-gold">⚙️ OPCIONES AVANZADAS</div>
+
+            <!-- Advanced Options -->
+            <div class="bg-slate-700 rounded-lg p-5 mb-6">
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input asp-for="Input.EliminarExistentes" type="checkbox" class="checkbox checkbox-error mt-1" />
+                    <div>
+                        <span class="text-gray-200 font-semibold">Eliminar horarios existentes en el rango</span>
+                        <p class="text-xs text-gray-400 mt-1">
+                            ⚠️ <strong>Cuidado:</strong> Esto eliminará los horarios que ya existan en el período seleccionado 
+                            (protege automáticamente los que tengan reservas activas).
+                        </p>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Important Info -->
+            <div class="alert bg-blue-900 bg-opacity-40 border-blue-500 mb-6">
+                <i class="fas fa-lightbulb text-blue-400 text-xl"></i>
+                <div class="text-gray-200 text-sm">
+                    <p class="font-semibold mb-2">💡 ¿Cómo funciona?</p>
+                    <ul class="list-disc list-inside space-y-1 text-xs">
+                        <li>Se crearán horarios automáticamente para cada día laborable del período</li>
+                        <li>Los días marcados como libres se saltarán automáticamente</li>
+                        <li>También se omitirán fechas con solicitudes de disponibilidad aprobadas</li>
+                        <li>La configuración se guardará como referencia histórica</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+                <button type="submit" class="btn bg-gold hover:bg-gold-dark text-slate-900 border-none gap-2 flex-1">
+                    <i class="fas fa-magic"></i>
+                    Generar Horarios
+                </button>
+                <a asp-page="/Admin/HorariosBarbero/Index" class="btn bg-slate-700 hover:bg-slate-600 text-gray-200 border-none gap-2">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

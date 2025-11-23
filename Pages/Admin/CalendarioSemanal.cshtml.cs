@@ -12,10 +12,12 @@ namespace BarberPro.Pages.Admin
     public class CalendarioSemanalModel : PageModel
     {
         private readonly BarberContext _context;
+        private readonly Services.DisponibilidadService _disponibilidadService;
 
-        public CalendarioSemanalModel(BarberContext context)
+        public CalendarioSemanalModel(BarberContext context, Services.DisponibilidadService disponibilidadService)
         {
             _context = context;
+            _disponibilidadService = disponibilidadService;
         }
 
         public DateTime InicioSemana { get; set; }
@@ -48,11 +50,24 @@ namespace BarberPro.Pages.Admin
             for (int i = 0; i < 7; i++)
             {
                 var dia = InicioSemana.AddDays(i);
+
+                // Define day boundaries to compare ranges
+                var dayStart = dia.Date;
+                var dayEnd = dayStart.AddDays(1);
+
+                // Load horarios that either have Fecha == this day OR are a period (Fecha..FechaFin) that contains this day
                 var horariosDia = await _context.HorariosBarbero
                     .Include(h => h.Barbero)
                     .ThenInclude(b => b!.Usuario)
-                    .Where(h => h.Fecha.Date == dia.Date)
+                    .Where(h => (
+                        h.BarberoID > 0 && h.Fecha.HasValue && (
+                        (h.Fecha.Value.Date == dayStart) || (h.FechaFin.HasValue && h.Fecha.Value.Date <= dayStart && h.FechaFin.Value.Date >= dayStart)
+                    )))
                     .ToListAsync();
+
+                // Exclude horarios that explicitly mark this weekday as free within a period
+                var dow = dia.DayOfWeek;
+                horariosDia = horariosDia.Where(h => !h.EsDiaLibre(dow)).ToList();
 
                 // Cargar reservas del día (todas excepto canceladas)
                 var reservasDia = await _context.Reservas
@@ -62,6 +77,21 @@ namespace BarberPro.Pages.Admin
                     .Include(r => r.Barbero)
                     .Where(r => r.FechaReserva.Date == dia.Date && r.Estado != "Cancelada")
                     .ToListAsync();
+
+                // Determine which barberos are configured as day off for this date
+                var barberosLibres = new HashSet<int>();
+                foreach (var b in Barberos)
+                {
+                    try
+                    {
+                        var esLibre = await _disponibilidadService.EsDiaLibre(b.BarberoID, dia);
+                        if (esLibre) barberosLibres.Add(b.BarberoID);
+                    }
+                    catch
+                    {
+                        // ignore errors per-barbero to avoid breaking calendar render
+                    }
+                }
 
                 Console.WriteLine($"Fecha {dia.Date:yyyy-MM-dd}: {reservasDia.Count} reservas encontradas");
                 foreach (var res in reservasDia)
@@ -74,7 +104,8 @@ namespace BarberPro.Pages.Admin
                     Fecha = dia,
                     NombreDia = dia.ToString("dddd", new System.Globalization.CultureInfo("es-ES")),
                     Horarios = horariosDia,
-                    Reservas = reservasDia
+                    Reservas = reservasDia,
+                    BarberosLibres = barberosLibres
                 });
             }
         }
@@ -134,5 +165,8 @@ namespace BarberPro.Pages.Admin
         public string NombreDia { get; set; } = string.Empty;
         public List<HorarioBarbero> Horarios { get; set; } = new List<HorarioBarbero>();
         public List<Reserva> Reservas { get; set; } = new List<Reserva>();
+
+        // Barbero IDs that are configured as day off for this date
+        public HashSet<int> BarberosLibres { get; set; } = new HashSet<int>();
     }
 }

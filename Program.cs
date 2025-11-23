@@ -31,6 +31,9 @@ if (!string.IsNullOrEmpty(connectionString))
 builder.Services.AddScoped<IAuthorizationHandler, AdminHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, BarberOrAdminHandler>();
 
+// Register services
+builder.Services.AddScoped<BarberPro.Services.DisponibilidadService>();
+
 // Agregar soporte para sesiones
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

@@ -62,22 +62,6 @@ namespace BarberPro.Pages.Admin.HorariosBarbero
                 return Page();
             }
 
-            // Check for overlapping schedules (excluding current one)
-            var overlapping = await _context.HorariosBarbero
-                .AnyAsync(h => h.HorarioID != Horario.HorarioID &&
-                              h.BarberoID == Horario.BarberoID &&
-                              h.Fecha.Date == Horario.Fecha.Date &&
-                              ((h.HoraInicio < Horario.HoraFin && h.HoraFin > Horario.HoraInicio)));
-
-            if (overlapping)
-            {
-                ModelState.AddModelError("", "Ya existe un horario que se solapa con este en la misma fecha");
-                Barberos = await _context.Barberos
-                    .Include(b => b.Usuario)
-                    .ToListAsync();
-                return Page();
-            }
-
             _context.Attach(Horario).State = EntityState.Modified;
 
             try

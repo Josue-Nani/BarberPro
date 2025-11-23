@@ -129,7 +129,7 @@ namespace BarberPro.Pages
 
             if (HorarioID > 0)
             {
-                horario = await _context.HorariosBarbero.FirstOrDefaultAsync(h => h.HorarioID == HorarioID && h.BarberoID == BarberoID && h.Fecha.Date == parsedFecha.Date);
+                horario = await _context.HorariosBarbero.FirstOrDefaultAsync(h => h.HorarioID == HorarioID && h.BarberoID == BarberoID && h.Fecha.HasValue && h.Fecha.Value.Date == parsedFecha.Date);
                 if (horario == null)
                 {
                     Console.WriteLine($"Horario with ID {HorarioID} not found for barbero {BarberoID} on date {parsedFecha.Date}");
@@ -250,7 +250,7 @@ namespace BarberPro.Pages
             // If horario was not loaded earlier (HorarioID == 0), try to find a horario block that contains the requested slot
             if (horario == null)
             {
-                horario = await _context.HorariosBarbero.FirstOrDefaultAsync(h => h.BarberoID == BarberoID && h.Fecha.Date == parsedFecha.Date && h.HoraInicio <= parsedInicio && h.HoraFin >= parsedFin && h.Disponible);
+                horario = await _context.HorariosBarbero.FirstOrDefaultAsync(h => h.BarberoID == BarberoID && h.Fecha.HasValue && h.Fecha.Value.Date == parsedFecha.Date && h.HoraInicio <= parsedInicio && h.HoraFin >= parsedFin && h.Disponible);
             }
 
             if (horario == null)
