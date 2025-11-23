@@ -14,12 +14,10 @@ namespace BarberPro.Pages.Admin.Barberos
     public class GenerarHorariosModel : PageModel
     {
         private readonly BarberContext _context;
-        private readonly Services.DisponibilidadService _disponibilidadService;
 
-        public GenerarHorariosModel(BarberContext context, Services.DisponibilidadService disponibilidadService)
+        public GenerarHorariosModel(BarberContext context)
         {
             _context = context;
-            _disponibilidadService = disponibilidadService;
         }
 
         [BindProperty]
@@ -171,31 +169,7 @@ namespace BarberPro.Pages.Admin.Barberos
                 _context.HorariosBarbero.Add(nuevoHorario);
                 await _context.SaveChangesAsync();
 
-                // Guardar también en ConfiguracionDisponibilidad como registro histórico
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (int.TryParse(userIdClaim, out var adminId))
-                {
-                    var configuracion = new Models.ConfiguracionDisponibilidad
-                    {
-                        BarberoID = Input.BarberoID,
-                        FechaInicio = Input.FechaInicio,
-                        FechaFin = Input.FechaFin,
-                        LunesLibre = Input.LunesLibre,
-                        MartesLibre = Input.MartesLibre,
-                        MiercolesLibre = Input.MiercolesLibre,
-                        JuevesLibre = Input.JuevesLibre,
-                        ViernesLibre = Input.ViernesLibre,
-                        SabadoLibre = Input.SabadoLibre,
-                        DomingoLibre = Input.DomingoLibre,
-                        HoraInicioTrabajo = Input.HoraInicio,
-                        HoraFinTrabajo = Input.HoraFin,
-                        AdminCreadorID = adminId,
-                        FechaCreacion = DateTime.Now
-                    };
-
-                    _context.ConfiguracionesDisponibilidad.Add(configuracion);
-                    await _context.SaveChangesAsync();
-                }
+                // ConfiguracionesDisponibilidad table removed - only using HorariosBarbero now
 
                 TempData["SuccessMessage"] = $"✅ Horario de período creado exitosamente para {Input.FechaInicio:dd/MM/yyyy} - {Input.FechaFin:dd/MM/yyyy}";
                 return RedirectToPage("/Admin/HorariosBarbero/Index");

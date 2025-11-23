@@ -10,12 +10,12 @@ namespace BarberPro.Pages.Admin.HorariosBarbero
     public class EditModel : PageModel
     {
         private readonly BarberContext _context;
-        private readonly Services.DisponibilidadService _disponibilidadService;
+        
 
-        public EditModel(BarberContext context, Services.DisponibilidadService disponibilidadService)
+        public EditModel(BarberContext context)
         {
             _context = context;
-            _disponibilidadService = disponibilidadService;
+            
         }
 
         [BindProperty]
@@ -77,15 +77,7 @@ namespace BarberPro.Pages.Admin.HorariosBarbero
             // If single-day schedule, ensure the day isn't configured as day-off for this barbero
             if (!Horario.FechaFin.HasValue && Horario.Fecha.HasValue)
             {
-                var esDiaLibre = await _disponibilidadService.EsDiaLibre(Horario.BarberoID, Horario.Fecha.Value);
-                if (esDiaLibre)
-                {
-                    ModelState.AddModelError("Horario.Fecha", "No se puede establecer un horario en una fecha configurada como día libre para este barbero");
-                    Barberos = await _context.Barberos
-                        .Include(b => b.Usuario)
-                        .ToListAsync();
-                    return Page();
-                }
+                // DisponibilidadService removed
             }
 
             // Check for overlapping schedules (exclude current Horario)
@@ -132,3 +124,5 @@ namespace BarberPro.Pages.Admin.HorariosBarbero
         }
     }
 }
+
+

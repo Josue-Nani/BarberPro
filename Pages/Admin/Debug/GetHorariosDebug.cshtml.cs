@@ -14,13 +14,11 @@ namespace BarberPro.Pages.Admin.Debug
     public class GetHorariosDebugModel : PageModel
     {
         private readonly BarberContext _context;
-        private readonly Services.DisponibilidadService _disponibilidadService;
         private readonly ILogger<GetHorariosDebugModel> _logger;
 
-        public GetHorariosDebugModel(BarberContext context, Services.DisponibilidadService disponibilidadService, ILogger<GetHorariosDebugModel> logger)
+        public GetHorariosDebugModel(BarberContext context, ILogger<GetHorariosDebugModel> logger)
         {
             _context = context;
-            _disponibilidadService = disponibilidadService;
             _logger = logger;
         }
 
@@ -36,7 +34,7 @@ namespace BarberPro.Pages.Admin.Debug
 
             try
             {
-                var esDiaLibre = await _disponibilidadService.EsDiaLibre(barberoId.Value, targetDate);
+                // DisponibilidadService removed
 
                 var horarios = await _context.HorariosBarbero
                     .Where(h => h.BarberoID == barberoId.Value && h.Disponible && h.Fecha.HasValue && (
@@ -78,34 +76,14 @@ namespace BarberPro.Pages.Admin.Debug
                     })
                     .ToListAsync();
 
-                var configuraciones = await _context.ConfiguracionesDisponibilidad
-                    .Where(c => c.BarberoID == barberoId.Value && c.FechaInicio.Date <= targetDate && c.FechaFin.Date >= targetDate)
-                    .Select(c => new {
-                        c.ConfiguracionID,
-                        c.BarberoID,
-                        c.FechaInicio,
-                        c.FechaFin,
-                        c.LunesLibre,
-                        c.MartesLibre,
-                        c.MiercolesLibre,
-                        c.JuevesLibre,
-                        c.ViernesLibre,
-                        c.SabadoLibre,
-                        c.DomingoLibre,
-                        c.HoraInicioTrabajo,
-                        c.HoraFinTrabajo,
-                        c.AdminCreadorID
-                    })
-                    .ToListAsync();
+                // ConfiguracionesDisponibilidad table removed
 
                 var result = new
                 {
                     barberoId = barberoId.Value,
                     fecha = targetDate.ToString("yyyy-MM-dd"),
-                    esDiaLibre,
                     horarios,
-                    reservas,
-                    configuraciones
+                    reservas
                 };
 
                 return new JsonResult(result);

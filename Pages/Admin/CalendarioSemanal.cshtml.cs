@@ -12,12 +12,10 @@ namespace BarberPro.Pages.Admin
     public class CalendarioSemanalModel : PageModel
     {
         private readonly BarberContext _context;
-        private readonly Services.DisponibilidadService _disponibilidadService;
 
-        public CalendarioSemanalModel(BarberContext context, Services.DisponibilidadService disponibilidadService)
+        public CalendarioSemanalModel(BarberContext context)
         {
             _context = context;
-            _disponibilidadService = disponibilidadService;
         }
 
         public DateTime InicioSemana { get; set; }
@@ -118,20 +116,8 @@ namespace BarberPro.Pages.Admin
                     .Where(r => r.FechaReserva.Date == dia.Date && r.Estado != "Cancelada")
                     .ToListAsync();
 
-                // Determine which barberos are configured as day off for this date (only for displayed barberos)
+                // DisponibilidadService removed - barbero availability determined by horarios only
                 var barberosLibres = new HashSet<int>();
-                foreach (var b in DisplayBarberos)
-                {
-                    try
-                    {
-                        var esLibre = await _disponibilidadService.EsDiaLibre(b.BarberoID, dia);
-                        if (esLibre) barberosLibres.Add(b.BarberoID);
-                    }
-                    catch
-                    {
-                        // ignore errors per-barbero to avoid breaking calendar render
-                    }
-                }
 
                 Dias.Add(new DiaCalendario
                 {

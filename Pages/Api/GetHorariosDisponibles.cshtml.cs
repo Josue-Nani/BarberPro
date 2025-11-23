@@ -9,12 +9,10 @@ namespace BarberPro.Pages
     public class GetHorariosDisponiblesModel : PageModel
     {
         private readonly BarberContext _context;
-        private readonly Services.DisponibilidadService _disponibilidadService;
 
-        public GetHorariosDisponiblesModel(BarberContext context, Services.DisponibilidadService disponibilidadService)
+        public GetHorariosDisponiblesModel(BarberContext context)
         {
             _context = context;
-            _disponibilidadService = disponibilidadService;
         }
 
         public async Task<IActionResult> OnGetAsync(int barberoId, string fecha, int servicioId)
@@ -24,20 +22,7 @@ namespace BarberPro.Pages
                 return new JsonResult(new { error = "Fecha inválida" });
             }
 
-            // Check if the date is configured as a day off
-            var esDiaLibre = await _disponibilidadService.EsDiaLibre(barberoId, parsedFecha.Date);
-            if (esDiaLibre)
-            {
-                // Return empty slots if it's a configured day off
-                return new JsonResult(new
-                {
-                    fecha = parsedFecha.ToString("yyyy-MM-dd"),
-                    barberoId = barberoId,
-                    servicioId = servicioId,
-                    duracionMinutos = 0,
-                    slots = new List<object>()
-                });
-            }
+            // DisponibilidadService removed - simplified logic
 
             var servicio = await _context.Servicios.FindAsync(servicioId);
             if (servicio == null)
