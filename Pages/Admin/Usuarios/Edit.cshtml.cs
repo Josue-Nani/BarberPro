@@ -36,6 +36,15 @@ namespace BarberPro.Pages.Admin.Usuarios
 
         public async Task<IActionResult> OnPost()
         {
+            // Remove validation for ContrasenaHash because edit form does not post it
+            ModelState.Remove("Usuario.ContrasenaHash");
+
+            // If NewPassword provided, validate length
+            if (!string.IsNullOrEmpty(NewPassword) && NewPassword.Length < 6)
+            {
+                ModelState.AddModelError("NewPassword", "La contraseña debe tener al menos 6 caracteres");
+            }
+
             if (!ModelState.IsValid)
             {
                 // Reload Roles for the dropdown when returning to the page with validation errors

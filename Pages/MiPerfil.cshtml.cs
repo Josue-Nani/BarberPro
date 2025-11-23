@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft. EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using BarberPro.Data;
 using BarberPro.Models;
 using System.Security.Claims;
@@ -29,7 +29,7 @@ namespace BarberPro.Pages
         [BindProperty]
         public EditProfileDTO? EditProfile { get; set; }
 
-        [BindProperty]
+        // Do not bind ChangePassword globally to avoid validation when updating profile
         public ChangePasswordDTO? ChangePassword { get; set; }
 
         [BindProperty]
@@ -83,7 +83,17 @@ namespace BarberPro.Pages
                 return NotFound();
             }
 
-            if (!ModelState.IsValid || EditProfile == null)
+            // Bind only the EditProfile DTO from the form and validate it explicitly
+            var dto = new EditProfileDTO();
+            var updated = await TryUpdateModelAsync(dto, "EditProfile");
+            if (!updated)
+            {
+                ErrorMessage = "Datos inválidos en el formulario";
+                Usuario = usuario;
+                return Page();
+            }
+
+            if (!TryValidateModel(dto))
             {
                 ErrorMessage = "Por favor corrige los errores en el formulario";
                 Usuario = usuario;
@@ -92,10 +102,10 @@ namespace BarberPro.Pages
 
             try
             {
-                if (EditProfile.Correo != usuario.Correo)
+                if (dto.Correo != usuario.Correo)
                 {
                     var emailExists = await _context.Usuarios
-                        .AnyAsync(u => u.Correo == EditProfile.Correo && u.UsuarioID != usuario.UsuarioID);
+                        .AnyAsync(u => u.Correo == dto.Correo && u.UsuarioID != usuario.UsuarioID);
 
                     if (emailExists)
                     {
@@ -105,9 +115,9 @@ namespace BarberPro.Pages
                     }
                 }
 
-                usuario.NombreCompleto = EditProfile.NombreCompleto;
-                usuario.Correo = EditProfile.Correo;
-                usuario.Telefono = EditProfile.Telefono;
+                usuario.NombreCompleto = dto.NombreCompleto;
+                usuario.Correo = dto.Correo;
+                usuario.Telefono = dto.Telefono;
 
                 await _context.SaveChangesAsync();
 
@@ -208,22 +218,32 @@ namespace BarberPro.Pages
                 return NotFound();
             }
 
-            if (ChangePassword == null || !ModelState.IsValid)
+            // Bind only the ChangePassword data for this handler
+            var dto = new ChangePasswordDTO();
+            var updated = await TryUpdateModelAsync(dto, "ChangePassword");
+            if (!updated)
             {
-                TempData["ErrorMessage"] = "Por favor corrige los errores en el formulario";
+                TempData["ErrorMessage"] = "Datos de contraseña inválidos";
+                return RedirectToPage();
+            }
+
+            // Validate DTO explicitly
+            if (!TryValidateModel(dto))
+            {
+                TempData["ErrorMessage"] = "Por favor corrige los errores en el formulario de contraseña";
                 return RedirectToPage();
             }
 
             try
             {
-                var currentPasswordHash = HashPassword(ChangePassword.ContrasenaActual);
+                var currentPasswordHash = HashPassword(dto.ContrasenaActual);
                 if (currentPasswordHash != usuario.ContrasenaHash)
                 {
                     TempData["ErrorMessage"] = "La contraseña actual es incorrecta";
                     return RedirectToPage();
                 }
 
-                usuario.ContrasenaHash = HashPassword(ChangePassword.NuevaContrasena);
+                usuario.ContrasenaHash = HashPassword(dto.NuevaContrasena);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Contraseña cambiada correctamente";

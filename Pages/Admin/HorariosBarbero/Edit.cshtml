@@ -28,7 +28,7 @@
                 <select asp-for="Horario.BarberoID" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required>
                     @foreach(var barbero in Model.Barberos)
                     {
-                        <option value="@barbero.BarberoID">@barbero.Usuario?.NombreCompleto</option>
+                        <option value="@barbero.BarberoID" selected="@(barbero.BarberoID == Model.Horario.BarberoID ? "selected" : null)">@barbero.Usuario?.NombreCompleto</option>
                     }
                 </select>
                 <span asp-validation-for="Horario.BarberoID" class="text-red-400 text-sm mt-1 block"></span>
@@ -36,10 +36,18 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">
-                    <i class="fas fa-calendar mr-2 text-gold"></i>Fecha
+                    <i class="fas fa-calendar mr-2 text-gold"></i>Fecha Inicio
                 </label>
                 <input asp-for="Horario.Fecha" type="date" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required />
                 <span asp-validation-for="Horario.Fecha" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">
+                    <i class="fas fa-calendar-check mr-2 text-gold"></i>Fecha Fin (opcional para periodos)
+                </label>
+                <input asp-for="Horario.FechaFin" type="date" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" />
+                <span asp-validation-for="Horario.FechaFin" class="text-red-400 text-sm mt-1 block"></span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -57,6 +65,19 @@
                     </label>
                     <input asp-for="Horario.HoraFin" type="time" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-gray-100 focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-50 transition" required />
                     <span asp-validation-for="Horario.HoraFin" class="text-red-400 text-sm mt-1 block"></span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Días libres dentro del periodo (marcar si aplica)</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="inline-flex items-center gap-2"><input asp-for="Horario.LunesLibre" type="checkbox" class="checkbox" /> Lunes</label>
+                    <label class="inline-flex items-center gap-2"><input asp-for="Horario.MartesLibre" type="checkbox" class="checkbox" /> Martes</label>
+                    <label class="inline-flex items-center gap-2"><input asp-for="Horario.MiercolesLibre" type="checkbox" class="checkbox" /> Miércoles</label>
+                    <label class="inline-flex items-center gap-2"><input asp-for="Horario.JuevesLibre" type="checkbox" class="checkbox" /> Jueves</label>
+                    <label class="inline-flex items-center gap-2"><input asp-for="Horario.ViernesLibre" type="checkbox" class="checkbox" /> Viernes</label>
+                    <label class="inline-flex items-center gap-2"><input asp-for="Horario.SabadoLibre" type="checkbox" class="checkbox" /> Sábado</label>
+                    <label class="inline-flex items-center gap-2"><input asp-for="Horario.DomingoLibre" type="checkbox" class="checkbox" /> Domingo</label>
                 </div>
             </div>
 
@@ -89,3 +110,4 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+

@@ -23,24 +23,64 @@ namespace BarberPro.Pages.Admin
         public DateTime InicioSemana { get; set; }
         public DateTime FinSemana { get; set; }
         public List<DiaCalendario> Dias { get; set; } = new List<DiaCalendario>();
-        public List<BarberoModel> Barberos { get; set; } = new List<BarberoModel>();
+
+        // All barberos for selector
+        public List<BarberoModel> AllBarberos { get; set; } = new List<BarberoModel>();
+        // Barberos actually shown (after filter)
+        public List<BarberoModel> DisplayBarberos { get; set; } = new List<BarberoModel>();
         public List<int> Horas { get; set; } = new List<int>();
+
+        // Current filters
+        [BindProperty(SupportsGet = true)]
+        public int? BarberoIdFilter { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string? Month { get; set; } // format yyyy-MM
 
         public async Task OnGetAsync(DateTime? fecha)
         {
-            // Si no se especifica fecha, usar la semana actual
-            var fechaBase = fecha ?? DateTime.Now;
-            
+            // Resolve base date: prefer explicit fecha, then Month, else today
+            DateTime fechaBase;
+            if (fecha.HasValue)
+            {
+                fechaBase = fecha.Value;
+            }
+            else if (!string.IsNullOrEmpty(Month))
+            {
+                // parse yyyy-MM
+                if (DateTime.TryParseExact(Month + "-01", "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var mdate))
+                {
+                    fechaBase = mdate;
+                }
+                else
+                {
+                    fechaBase = DateTime.Now;
+                }
+            }
+            else
+            {
+                fechaBase = DateTime.Now;
+            }
+
             // Calcular inicio de semana (lunes)
             int diasDesdeInicio = ((int)fechaBase.DayOfWeek - 1 + 7) % 7;
             InicioSemana = fechaBase.Date.AddDays(-diasDesdeInicio);
             FinSemana = InicioSemana.AddDays(6);
 
             // Obtener todos los barberos
-            Barberos = await _context.Barberos
+            AllBarberos = await _context.Barberos
                 .Include(b => b.Usuario)
                 .Where(b => b.Usuario != null)
                 .ToListAsync();
+
+            // Apply barber filter
+            if (BarberoIdFilter.HasValue)
+            {
+                DisplayBarberos = AllBarberos.Where(b => b.BarberoID == BarberoIdFilter.Value).ToList();
+            }
+            else
+            {
+                DisplayBarberos = AllBarberos;
+            }
 
             // Generar lista de horas (8:00 AM - 8:00 PM)
             Horas = Enumerable.Range(8, 13).ToList(); // 8 to 20 (8 PM)
@@ -78,9 +118,9 @@ namespace BarberPro.Pages.Admin
                     .Where(r => r.FechaReserva.Date == dia.Date && r.Estado != "Cancelada")
                     .ToListAsync();
 
-                // Determine which barberos are configured as day off for this date
+                // Determine which barberos are configured as day off for this date (only for displayed barberos)
                 var barberosLibres = new HashSet<int>();
-                foreach (var b in Barberos)
+                foreach (var b in DisplayBarberos)
                 {
                     try
                     {
@@ -91,12 +131,6 @@ namespace BarberPro.Pages.Admin
                     {
                         // ignore errors per-barbero to avoid breaking calendar render
                     }
-                }
-
-                Console.WriteLine($"Fecha {dia.Date:yyyy-MM-dd}: {reservasDia.Count} reservas encontradas");
-                foreach (var res in reservasDia)
-                {
-                    Console.WriteLine($"  - Reserva #{res.ReservaID}: Barbero {res.BarberoID}, {res.HoraInicio}-{res.HoraFin}, Estado: {res.Estado}");
                 }
 
                 Dias.Add(new DiaCalendario

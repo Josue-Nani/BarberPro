@@ -148,7 +148,14 @@ namespace BarberPro.Pages.Admin.Reservas
                     ? servicios[r.ServicioID].Precio
                     : 0,
                 Estado = r.Estado ?? "Pendiente",
-                FechaCreacion = r.FechaCreacion
+                FechaCreacion = r.FechaCreacion,
+                // Foto del cliente y barbero (si existe)
+                ClienteFoto = clientes.ContainsKey(r.ClienteID) && clientes[r.ClienteID].Usuario != null
+                    ? clientes[r.ClienteID].Usuario!.FotoPerfil
+                    : null,
+                BarberoFoto = barberos.ContainsKey(r.BarberoID) && barberos[r.BarberoID].Usuario != null
+                    ? barberos[r.BarberoID].Usuario!.FotoPerfil
+                    : null
             }).ToList();
 
             // Filtrar por búsqueda de cliente si se proporcionó
@@ -216,6 +223,10 @@ namespace BarberPro.Pages.Admin.Reservas
         public decimal ServicioPrecio { get; set; }
         public string Estado { get; set; } = string.Empty;
         public DateTime FechaCreacion { get; set; }
+
+        // Foto URLs
+        public string? ClienteFoto { get; set; }
+        public string? BarberoFoto { get; set; }
 
         public string DisplayFecha => FechaReserva.ToString("dd/MM/yyyy");
         public string DisplayHora => $"{HoraInicio:hh\\:mm} - {HoraFin:hh\\:mm}";

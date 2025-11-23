@@ -111,7 +111,7 @@ namespace BarberPro.Pages
                 return Page();
             }
 
-            // Verificar que el barbero esté disponible
+            // Verificar que el barbero esté disponible (estatus general)
             var disponibilidad = barbero.Disponibilidad ?? "Disponible";
             if (disponibilidad != "Disponible")
             {
@@ -120,7 +120,8 @@ namespace BarberPro.Pages
                 OnGet();
                 return Page();
             }
-            // =====================================================
+
+            // DisponibilidadService removed - weekday checks are done via horario flags below
 
             // We'll need parsedInicio/parsedFin. If HorarioID provided but times are missing, fetch horario and find an available slot inside it.
             TimeSpan parsedInicio = default;
@@ -129,11 +130,42 @@ namespace BarberPro.Pages
 
             if (HorarioID > 0)
             {
-                horario = await _context.HorariosBarbero.FirstOrDefaultAsync(h => h.HorarioID == HorarioID && h.BarberoID == BarberoID && h.Fecha.HasValue && h.Fecha.Value.Date == parsedFecha.Date);
+                // Fetch horario by ID and ensure it applies to the selected date (single-day or period)
+                horario = await _context.HorariosBarbero.FirstOrDefaultAsync(h => h.HorarioID == HorarioID && h.BarberoID == BarberoID && h.Disponible);
+
                 if (horario == null)
                 {
-                    Console.WriteLine($"Horario with ID {HorarioID} not found for barbero {BarberoID} on date {parsedFecha.Date}");
+                    Console.WriteLine($"Horario with ID {HorarioID} not found for barbero {BarberoID}");
                     Mensaje = "Horario no disponible.";
+                    OnGet();
+                    return Page();
+                }
+
+                // Ensure horario covers the selected date: either Fecha == parsedFecha or Fecha..FechaFin contains it
+                bool horarioAplicaEnFecha = false;
+                if (horario.Fecha.HasValue)
+                {
+                    if (horario.Fecha.Value.Date == parsedFecha.Date)
+                        horarioAplicaEnFecha = true;
+                }
+                if (!horarioAplicaEnFecha && horario.FechaFin.HasValue && horario.Fecha.HasValue)
+                {
+                    if (horario.Fecha.Value.Date <= parsedFecha.Date && horario.FechaFin.Value.Date >= parsedFecha.Date)
+                        horarioAplicaEnFecha = true;
+                }
+
+                if (!horarioAplicaEnFecha)
+                {
+                    Console.WriteLine($"Horario ID {HorarioID} does not apply to date {parsedFecha.Date}");
+                    Mensaje = "El horario seleccionado no aplica para la fecha elegida.";
+                    OnGet();
+                    return Page();
+                }
+
+                // Check weekday flags on the horario itself (for period schedules)
+                if (horario.EsDiaLibre(parsedFecha.DayOfWeek))
+                {
+                    Mensaje = "El horario seleccionado está marcado como día libre para ese día de la semana.";
                     OnGet();
                     return Page();
                 }
@@ -143,7 +175,7 @@ namespace BarberPro.Pages
                 {
                     // load existing reservas for that barbero and date (excluding cancelled ones)
                     var reservas = await _context.Reservas
-                        .Where(r => r.BarberoID == BarberoID && r.FechaReserva.Date == parsedFecha.Date && r.Estado != "Cancelada")
+                        .Where(r => r.BarberoID == BarberoID && r.FechaReserva >= parsedFecha.Date && r.FechaReserva < parsedFecha.Date.AddDays(1) && r.Estado != "Cancelada")
                         .ToListAsync();
 
                     // compute step (gcd of all service durations)
@@ -250,7 +282,16 @@ namespace BarberPro.Pages
             // If horario was not loaded earlier (HorarioID == 0), try to find a horario block that contains the requested slot
             if (horario == null)
             {
-                horario = await _context.HorariosBarbero.FirstOrDefaultAsync(h => h.BarberoID == BarberoID && h.Fecha.HasValue && h.Fecha.Value.Date == parsedFecha.Date && h.HoraInicio <= parsedInicio && h.HoraFin >= parsedFin && h.Disponible);
+                // Find a horario that either is for the exact date or is a period covering the date
+                horario = await _context.HorariosBarbero.FirstOrDefaultAsync(h =>
+                    h.BarberoID == BarberoID &&
+                    h.Disponible &&
+                    h.Fecha.HasValue &&
+                    (
+                        (h.Fecha.Value.Date == parsedFecha.Date && h.HoraInicio <= parsedInicio && h.HoraFin >= parsedFin)
+                        || (h.FechaFin.HasValue && h.Fecha.Value.Date <= parsedFecha.Date && h.FechaFin.Value.Date >= parsedFecha.Date && h.HoraInicio <= parsedInicio && h.HoraFin >= parsedFin)
+                    )
+                );
             }
 
             if (horario == null)
@@ -278,9 +319,19 @@ namespace BarberPro.Pages
                 return Page();
             }
 
+            // Check weekday flags on horario and global configuraciones before finalizing
+            if (horario.EsDiaLibre(parsedFecha.DayOfWeek))
+            {
+                Mensaje = "El barbero no trabaja ese día de la semana dentro del período configurado.";
+                OnGet();
+                return Page();
+            }
+
+            // DisponibilidadService removed - weekday validation already done via horario.EsDiaLibre() above
+
             // Check for overlapping reservations for this barbero on the same date (excluding cancelled ones)
             var overlapping = await _context.Reservas
-                .AnyAsync(r => r.BarberoID == BarberoID && r.FechaReserva.Date == parsedFecha.Date && r.HoraInicio < parsedFin && r.HoraFin > parsedInicio && r.Estado != "Cancelada");
+                .AnyAsync(r => r.BarberoID == BarberoID && r.FechaReserva >= parsedFecha.Date && r.FechaReserva < parsedFecha.Date.AddDays(1) && r.HoraInicio < parsedFin && r.HoraFin > parsedInicio && r.Estado != "Cancelada");
 
             if (overlapping)
             {
@@ -313,7 +364,7 @@ namespace BarberPro.Pages
                 // Do not mark the whole horario block as unavailable — allow partial slots
 
                 var recordsAffected = await _context.SaveChangesAsync();
-                Console.WriteLine($"=== CHANGES SAVED TO DATABASE SUCCESSFULLY ===");
+                Console.WriteLine("=== CHANGES SAVED TO DATABASE SUCCESSFULLY ===");
                 Console.WriteLine($"Records affected: {recordsAffected}");
 
                 TempData["SuccessMessage"] = "¡Reserva confirmada exitosamente!";
@@ -321,7 +372,7 @@ namespace BarberPro.Pages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"=== ERROR SAVING TO DATABASE ===");
+                Console.WriteLine("=== ERROR SAVING TO DATABASE ===");
                 Console.WriteLine($"Exception: {ex.Message}");
                 Console.WriteLine($"StackTrace: {ex.StackTrace}");
 

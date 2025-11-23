@@ -36,10 +36,21 @@ namespace BarberPro.Pages.Admin.Barberos
         {
             // Usuarios que todavía no son barberos
             var usuariosConBarbero = await _context.Barberos.Select(b => b.UsuarioID).ToListAsync();
-            Usuarios = await _context.Usuarios
-                .Where(u => u.Estado == true && !usuariosConBarbero.Contains(u.UsuarioID))
-                .OrderBy(u => u.NombreCompleto)
-                .ToListAsync();
+
+            // Find the role id for 'Barbero'
+            var rolBarbero = await _context.Roles.FirstOrDefaultAsync(r => r.NombreRol == "Barbero");
+            if (rolBarbero != null)
+            {
+                Usuarios = await _context.Usuarios
+                    .Where(u => u.Estado == true && u.RolID == rolBarbero.RolID && !usuariosConBarbero.Contains(u.UsuarioID))
+                    .OrderBy(u => u.NombreCompleto)
+                    .ToListAsync();
+            }
+            else
+            {
+                // If the 'Barbero' role does not exist, return empty list to avoid showing incorrect users
+                Usuarios = new List<Usuario>();
+            }
 
             // Horarios libres (Disponible = true y sin barbero asignado)
             var horarios = await _context.HorariosBarbero

@@ -10,10 +10,12 @@ namespace BarberPro.Pages.Admin.HorariosBarbero
     public class EditModel : PageModel
     {
         private readonly BarberContext _context;
+        private readonly Services.DisponibilidadService _disponibilidadService;
 
-        public EditModel(BarberContext context)
+        public EditModel(BarberContext context, Services.DisponibilidadService disponibilidadService)
         {
             _context = context;
+            _disponibilidadService = disponibilidadService;
         }
 
         [BindProperty]
@@ -56,6 +58,50 @@ namespace BarberPro.Pages.Admin.HorariosBarbero
             if (Horario.HoraFin <= Horario.HoraInicio)
             {
                 ModelState.AddModelError("Horario.HoraFin", "La hora de fin debe ser posterior a la hora de inicio");
+                Barberos = await _context.Barberos
+                    .Include(b => b.Usuario)
+                    .ToListAsync();
+                return Page();
+            }
+
+            // Validate FechaFin if provided
+            if (Horario.FechaFin.HasValue && Horario.Fecha.HasValue && Horario.FechaFin.Value.Date < Horario.Fecha.Value.Date)
+            {
+                ModelState.AddModelError("Horario.FechaFin", "La fecha fin debe ser igual o posterior a la fecha inicio");
+                Barberos = await _context.Barberos
+                    .Include(b => b.Usuario)
+                    .ToListAsync();
+                return Page();
+            }
+
+            // If single-day schedule, ensure the day isn't configured as day-off for this barbero
+            if (!Horario.FechaFin.HasValue && Horario.Fecha.HasValue)
+            {
+                var esDiaLibre = await _disponibilidadService.EsDiaLibre(Horario.BarberoID, Horario.Fecha.Value);
+                if (esDiaLibre)
+                {
+                    ModelState.AddModelError("Horario.Fecha", "No se puede establecer un horario en una fecha configurada como día libre para este barbero");
+                    Barberos = await _context.Barberos
+                        .Include(b => b.Usuario)
+                        .ToListAsync();
+                    return Page();
+                }
+            }
+
+            // Check for overlapping schedules (exclude current Horario)
+            var startDate = Horario.Fecha.Value.Date;
+            var endDate = (Horario.FechaFin ?? Horario.Fecha).Value.Date;
+
+            var overlapping = await _context.HorariosBarbero
+                .Where(h => h.BarberoID == Horario.BarberoID && h.HorarioID != Horario.HorarioID && h.Fecha.HasValue)
+                .AnyAsync(h =>
+                    // compare ranges: h.Fecha .. (h.FechaFin ?? h.Fecha)  vs startDate..endDate
+                    (h.Fecha.Value.Date <= endDate) && ((h.FechaFin ?? h.Fecha).Value.Date >= startDate)
+                );
+
+            if (overlapping)
+            {
+                ModelState.AddModelError("", "Ya existe un horario que se solapa con este en la misma fecha");
                 Barberos = await _context.Barberos
                     .Include(b => b.Usuario)
                     .ToListAsync();

@@ -76,8 +76,7 @@
                     <!-- Upload Form -->
                     <form method="post" enctype="multipart/form-data" asp-page-handler="UploadPhoto" class="w-full">
                         <div class="form-control w-full">
-                            <input type="file" 
-                                   name="FotoPerfil" 
+                            <input asp-for="FotoFile" type="file" 
                                    accept="image/*" 
                                    class="file-input file-input-bordered file-input-primary w-full mb-4" />
                             <button type="submit" class="btn btn-primary w-full">

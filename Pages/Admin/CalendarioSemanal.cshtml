@@ -18,27 +18,47 @@
             </p>
         </div>
 
-        <!-- Navegación entre semanas -->
-        <div class="flex gap-2">
-            <a asp-page="/Admin/CalendarioSemanal" 
+        <!-- Navegación entre semanas (preserva filtros) -->
+        <div class="flex gap-2 items-center">
+            <a asp-page="/Admin/CalendarioSemanal"
                asp-route-fecha="@Model.InicioSemana.AddDays(-7).ToString("yyyy-MM-dd")"
+               asp-route-BarberoIdFilter="@(Model.BarberoIdFilter?.ToString())"
+               asp-route-Month="@(Model.Month ?? string.Empty)"
                class="btn bg-slate-700 hover:bg-slate-600 border-slate-600 text-white">
                 <i class="fas fa-chevron-left mr-2"></i>
                 Anterior
             </a>
             <a asp-page="/Admin/CalendarioSemanal"
+               asp-route-BarberoIdFilter="@(Model.BarberoIdFilter?.ToString())"
+               asp-route-Month="@(Model.Month ?? string.Empty)"
                class="btn bg-gold hover:bg-yellow-600 border-gold text-black font-semibold">
                 <i class="fas fa-calendar-day mr-2"></i>
                 Hoy
             </a>
-            <a asp-page="/Admin/CalendarioSemanal" 
+            <a asp-page="/Admin/CalendarioSemanal"
                asp-route-fecha="@Model.InicioSemana.AddDays(7).ToString("yyyy-MM-dd")"
+               asp-route-BarberoIdFilter="@(Model.BarberoIdFilter?.ToString())"
+               asp-route-Month="@(Model.Month ?? string.Empty)"
                class="btn bg-slate-700 hover:bg-slate-600 border-slate-600 text-white">
                 Siguiente
                 <i class="fas fa-chevron-right ml-2"></i>
             </a>
         </div>
     </div>
+
+    <!-- Filters -->
+    <form method="get" class="mb-6 flex gap-3 items-center">
+        <select name="BarberoIdFilter" class="select select-bordered bg-slate-700 text-white">
+            <option value="">Todos los barberos</option>
+            @foreach (var b in Model.AllBarberos)
+            {
+                <option value="@b.BarberoID" selected="@(Model.BarberoIdFilter == b.BarberoID ? "selected" : null)">@b.Usuario?.NombreCompleto</option>
+            }
+        </select>
+        <input type="month" name="Month" value="@(Model.Month ?? string.Empty)" class="input input-bordered bg-slate-700 text-white" />
+        <input type="date" name="fecha" class="input input-bordered bg-slate-700 text-white" />
+        <button type="submit" class="btn bg-gold text-black">Aplicar</button>
+    </form>
 
     <!-- Leyenda -->
     <div class="mb-6 flex flex-wrap gap-4">
@@ -64,17 +84,17 @@
         </div>
     </div>
 
-    @if (Model.Barberos.Count == 0)
+    @if (!Model.DisplayBarberos.Any())
     {
         <div class="bg-yellow-900 bg-opacity-20 border border-yellow-600 rounded-lg p-6 text-center">
             <i class="fas fa-exclamation-triangle text-yellow-500 text-3xl mb-3"></i>
-            <p class="text-yellow-200">No hay barberos registrados en el sistema.</p>
+            <p class="text-yellow-200">No hay barberos que coincidan con los filtros.</p>
         </div>
     }
     else
     {
         <!-- Calendario por barbero -->
-        @foreach (var barbero in Model.Barberos)
+        @foreach (var barbero in Model.DisplayBarberos)
         {
             <div class="mb-8 bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden">
                 <!-- Header del barbero -->

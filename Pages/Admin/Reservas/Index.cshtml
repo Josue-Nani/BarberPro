@@ -171,7 +171,23 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="text-gray-300">@reserva.BarberoNombre</span>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full overflow-hidden">
+                                            @if (!string.IsNullOrEmpty(reserva.BarberoFoto))
+                                            {
+                                                <img src="@reserva.BarberoFoto" alt="@reserva.BarberoNombre" class="w-full h-full object-cover" />
+                                            }
+                                            else
+                                            {
+                                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-slate-900 font-bold">
+                                                    @reserva.BarberoNombre.Substring(0,1).ToUpper()
+                                                </div>
+                                            }
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-300">@reserva.BarberoNombre</span>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="text-gray-300">@reserva.ServicioNombre</span>

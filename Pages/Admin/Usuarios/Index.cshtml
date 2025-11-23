@@ -29,8 +29,17 @@
                 <div class="glass-card rounded-xl p-6 hover:border-gold transition-all duration-300 group">
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-slate-900 font-bold text-lg">
-                                @usuario.NombreCompleto.Substring(0, 1).ToUpper()
+                            <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center">
+                                @if (!string.IsNullOrEmpty(usuario.FotoPerfil))
+                                {
+                                    <img src="@usuario.FotoPerfil" alt="@usuario.NombreCompleto" class="w-full h-full object-cover" />
+                                }
+                                else
+                                {
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-slate-900 font-bold text-lg">
+                                        @usuario.NombreCompleto.Substring(0, 1).ToUpper()
+                                    </div>
+                                }
                             </div>
                             <div>
                                 <h3 class="font-semibold text-gray-100 group-hover:text-gold transition">@usuario.NombreCompleto</h3>
@@ -79,3 +88,4 @@
         </div>
     }
 </div>
+

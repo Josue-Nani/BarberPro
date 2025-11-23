@@ -14,6 +14,9 @@ const reservaState = {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
+    // Load barberos immediately so user can choose a barber first
+    loadBarberos();
+
     initializeServicioSelection();
     setupDatePicker();
     setupConfirmFormHandler();
@@ -51,8 +54,8 @@ function initializeServicioSelection() {
             // Update progress
             updateProgress(1);
 
-            // Load barberos and show next section
-            loadBarberos();
+            // Load barberos and show next section (if not already loaded)
+            // loadBarberos(); // already loaded on page init
 
             // Smooth scroll to barberos section
             setTimeout(() => {
@@ -125,6 +128,7 @@ async function loadBarberos() {
         `;
         }).join('');
 
+
         // Add click handlers
         initializeBarberoSelection();
 
@@ -162,13 +166,13 @@ function initializeBarberoSelection() {
             this.classList.add('border-primary', 'scale-105');
             this.querySelector('.selected-badge').classList.remove('hidden');
 
-            // Update state
-            reservaState.barberoID = this.dataset.barberoId;
+            // Update state (ensure numeric)
+            reservaState.barberoID = parseInt(this.dataset.barberoId, 10);
             reservaState.barberoNombre = this.dataset.barberoNombre;
 
             console.log('Barbero seleccionado', { barberoID: reservaState.barberoID, barberoNombre: reservaState.barberoNombre });
 
-            // update hidden inputs so backend receives current state
+            // update hidden inputs so backend recibe current state
             updateFormInputs();
 
             // Update summary
@@ -185,6 +189,11 @@ function initializeBarberoSelection() {
             const fechaInput = document.getElementById('fechaInput');
             const today = new Date().toISOString().split('T')[0];
             fechaInput.min = today;
+
+            // If a date is already selected, load horarios immediately
+            if (fechaInput.value) {
+                loadHorarios(reservaState.barberoID, fechaInput.value);
+            }
 
             // Smooth scroll to horario section
             setTimeout(() => {
@@ -232,19 +241,38 @@ async function loadHorarios(barberoId, fecha) {
             }
             servicioIdParam = `&servicioId=${encodeURIComponent(reservaState.servicioID)}`;
         }
-        const response = await fetch(`/Api/GetHorarios?barberoId=${barberoId}&fecha=${fecha}&duracion=${duracion}${servicioIdParam}`);
-        const horarios = await response.json();
 
-        // Hide loading
+        const url = `/Api/GetHorarios?barberoId=${encodeURIComponent(barberoId)}&fecha=${encodeURIComponent(fecha)}&duracion=${encodeURIComponent(duracion)}${servicioIdParam}`;
+        const response = await fetch(url);
+
+        // Hide loading only after we have a response
         horariosLoading.classList.add('hidden');
 
-        if (horarios.length === 0) {
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('Error fetching horarios:', response.status, text);
+            horariosGrid.innerHTML = `<div class="col-span-3 text-center py-8 text-error">Error al cargar horarios (código ${response.status})<br/><pre style="white-space:pre-wrap; text-align:left; margin:1rem;">${escapeHtml(text)}</pre></div>`;
+            return;
+        }
+
+        let horarios;
+        try {
+            horarios = await response.json();
+        } catch (jsonErr) {
+            const text = await response.text();
+            console.error('Failed to parse horarios JSON:', jsonErr, text);
+            horariosGrid.innerHTML = `<div class="col-span-3 text-center py-8 text-error">Error al procesar la respuesta del servidor<br/><pre style="white-space:pre-wrap; text-align:left; margin:1rem;">${escapeHtml(text)}</pre></div>`;
+            return;
+        }
+
+        if (!Array.isArray(horarios) || horarios.length === 0) {
             horariosEmpty.classList.remove('hidden');
             return;
         }
 
         // Render horarios
         horariosGrid.innerHTML = horarios.map(horario => `
+
             <div class="premium-card cursor-pointer horario-card" data-horario-id="${horario.horarioID}" data-horario-display="${horario.displayText}" data-horario-hora="${horario.horaInicio}" data-hora-inicio="${horario.horaInicio}" data-hora-fin="${horario.horaFin}">
                 <div class="card-body p-4 text-center">
                     <div class="text-sm opacity-60 mb-1">${horario.fechaDisplay}</div>
@@ -257,14 +285,20 @@ async function loadHorarios(barberoId, fecha) {
             </div>
         `).join('');
 
+
         // Add click handlers
         initializeHorarioSelection();
 
     } catch (error) {
-        console.error('Error loading horarios:', error);
+        console.error('Error loading barbero horarios:', error);
         horariosLoading.classList.add('hidden');
-        horariosGrid.innerHTML = '<div class="col-span-3 text-center py-8 text-error">Error al cargar horarios</div>';
+        horariosGrid.innerHTML = `<div class="col-span-3 text-center py-8 text-error">Error al cargar horarios<br/><pre style="white-space:pre-wrap; text-align:left; margin:1rem;">${escapeHtml(error && error.message ? error.message : String(error))}</pre></div>`;
     }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function initializeHorarioSelection() {
@@ -283,13 +317,19 @@ function initializeHorarioSelection() {
             this.querySelector('.selected-badge').classList.remove('hidden');
 
             // Update state
-            reservaState.horarioID = this.dataset.horarioId;
+            reservaState.horarioID = parseInt(this.dataset.horarioId, 10);
             reservaState.horarioDisplay = this.dataset.horarioDisplay;
-            // Read hora values from dataset (data-hora-inicio / data-hora-fin)
             reservaState.horaInicio = this.dataset.horaInicio;
             reservaState.horaFin = this.dataset.horaFin;
 
-            console.log('Slot seleccionado', { horarioID: reservaState.horarioID, horaInicio: reservaState.horaInicio, horaFin: reservaState.horaFin });
+            console.log('Horario seleccionado', {
+                horarioID: reservaState.horarioID,
+                horaInicio: reservaState.horaInicio,
+                horaFin: reservaState.horaFin
+            });
+
+            // Update form inputs
+            updateFormInputs();
 
             // Update summary
             updateSummary();
@@ -297,24 +337,17 @@ function initializeHorarioSelection() {
             // Update progress
             updateProgress(3);
 
-            // Enable confirm button
+            // Enable confirm button if all steps are complete
             const confirmButton = document.getElementById('confirmButton');
-            confirmButton.disabled = false;
-            confirmButton.classList.remove('btn-disabled');
-
-            // Update form hidden inputs
-            updateFormInputs();
-
-            // Smooth scroll to summary
-            setTimeout(() => {
-                const summary = document.querySelector('.card.bg-base-200');
-                summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
+            if (reservaState.servicioID && reservaState.barberoID && reservaState.fecha && reservaState.horarioID) {
+                confirmButton.disabled = false;
+            }
         });
     });
 }
 
 // ========== Update Functions ==========
+
 function updateSummary() {
     // Update servicio
     if (reservaState.servicioNombre) {

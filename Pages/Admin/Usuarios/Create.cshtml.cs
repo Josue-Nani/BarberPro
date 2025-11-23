@@ -9,10 +9,12 @@ namespace BarberPro.Pages.Admin.Usuarios
     public class CreateModel : PageModel
     {
         private readonly BarberContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public CreateModel(BarberContext context)
+        public CreateModel(BarberContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         [BindProperty]
@@ -42,6 +44,12 @@ namespace BarberPro.Pages.Admin.Usuarios
 
         public async Task<IActionResult> OnPostAsync()
         {
+            // Validate password length
+            if (string.IsNullOrEmpty(NewPassword) || NewPassword.Length < 6)
+            {
+                ModelState.AddModelError("NewPassword", "La contraseña debe tener al menos 6 caracteres");
+            }
+
             if (!ModelState.IsValid)
             {
                 Roles = await _context.Roles.ToListAsync();
@@ -53,17 +61,34 @@ namespace BarberPro.Pages.Admin.Usuarios
             string? fotoPath = null;
             if (FotoFile != null && FotoFile.Length > 0)
             {
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                var extension = Path.GetExtension(FotoFile.FileName).ToLowerInvariant();
+
+                if (!Array.Exists(allowedExtensions, ext => ext == extension))
+                {
+                    ModelState.AddModelError("FotoFile", "Solo se permiten imágenes (jpg, jpeg, png, gif)");
+                    Roles = await _context.Roles.ToListAsync();
+                    return Page();
+                }
+
+                if (FotoFile.Length > 5 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("FotoFile", "La imagen no puede superar los 5MB");
+                    Roles = await _context.Roles.ToListAsync();
+                    return Page();
+                }
+
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "profiles");
                 Directory.CreateDirectory(uploadsFolder);
-                
-                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(FotoFile.FileName);
+
+                var uniqueFileName = Guid.NewGuid().ToString() + extension;
                 var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                
+
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await FotoFile.CopyToAsync(fileStream);
                 }
-                
+
                 fotoPath = "/uploads/profiles/" + uniqueFileName;
             }
 
