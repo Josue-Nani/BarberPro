@@ -9,7 +9,7 @@ using BarberoModel = BarberPro.Models.Barbero;
 
 namespace BarberPro.Pages.Barbero
 {
-    [Authorize(Policy = "BarberOrAdminOnly")]
+    [Authorize(Policy = "BarberOrAdmin")]
     public class SolicitarInactividadModel : PageModel
     {
         private readonly BarberContext _context;
@@ -39,28 +39,51 @@ namespace BarberPro.Pages.Barbero
 
         public async Task<IActionResult> OnPostAsync()
         {
+            Console.WriteLine("=== OnPostAsync CALLED ===");
+            Console.WriteLine($"FechaInicio: {Solicitud.FechaInicio}");
+            Console.WriteLine($"FechaFin: {Solicitud.FechaFin}");
+            Console.WriteLine($"Motivo: {Solicitud.Motivo}");
+            Console.WriteLine($"ModelState.IsValid: {ModelState.IsValid}");
+
+            if (!ModelState.IsValid)
+            {
+                MensajeError = "Por favor completa todos los campos correctamente. ";
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    MensajeError += error.ErrorMessage + " ";
+                    Console.WriteLine($"ModelState Error: {error.ErrorMessage}");
+                }
+                return Page();
+            }
+
             var barbero = await GetBarberoActualAsync();
             if (barbero == null)
             {
+                Console.WriteLine("ERROR: Barbero not found");
                 MensajeError = "No se pudo identificar al barbero.";
                 return Page();
             }
 
+            Console.WriteLine($"Barbero found: ID={barbero.BarberoID}, Nombre={barbero.Usuario?.NombreCompleto}");
+
             // Validations
             if (Solicitud.FechaInicio < DateTime.Today)
             {
+                Console.WriteLine("ERROR: FechaInicio in the past");
                 MensajeError = "La fecha de inicio debe ser hoy o en el futuro.";
                 return Page();
             }
 
             if (Solicitud.FechaFin < Solicitud.FechaInicio)
             {
+                Console.WriteLine("ERROR: FechaFin before FechaInicio");
                 MensajeError = "La fecha de fin debe ser posterior o igual a la fecha de inicio.";
                 return Page();
             }
 
             if (string.IsNullOrWhiteSpace(Solicitud.Motivo) || Solicitud.Motivo.Length < 10)
             {
+                Console.WriteLine($"ERROR: Motivo too short. Length={Solicitud.Motivo?.Length ?? 0}");
                 MensajeError = "El motivo debe tener al menos 10 caracteres.";
                 return Page();
             }
@@ -73,6 +96,7 @@ namespace BarberPro.Pages.Barbero
 
             if (conflictoPendiente)
             {
+                Console.WriteLine("ERROR: Conflicting pending request");
                 MensajeError = "Ya tienes una solicitud pendiente para estas fechas.";
                 return Page();
             }
@@ -88,10 +112,15 @@ namespace BarberPro.Pages.Barbero
                 FechaSolicitud = DateTime.Now
             };
 
+            Console.WriteLine("Adding solicitud to context...");
             _context.SolicitudesDisponibilidad.Add(nuevaSolicitud);
+            
+            Console.WriteLine("Saving changes...");
             await _context.SaveChangesAsync();
+            Console.WriteLine("Changes saved successfully!");
 
             TempData["SuccessMessage"] = "Solicitud enviada exitosamente. El administrador la revisará pronto.";
+            Console.WriteLine("Redirecting to MisSolicitudes...");
             return RedirectToPage("/Barbero/MisSolicitudes");
         }
 
