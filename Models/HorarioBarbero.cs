@@ -27,7 +27,7 @@ namespace BarberPro.Models
 
         public bool Disponible { get; set; } = true;
         
-        // Días de la semana libres (para horarios de período)
+        // CRÍTICO: Propiedades para determinar qué días de la semana el barbero NO trabaja
         public bool LunesLibre { get; set; }
         public bool MartesLibre { get; set; }
         public bool MiercolesLibre { get; set; }
@@ -36,11 +36,9 @@ namespace BarberPro.Models
         public bool SabadoLibre { get; set; }
         public bool DomingoLibre { get; set; }
 
-        // Navigation to Barbero
         [ForeignKey("BarberoID")]
         public Barbero? Barbero { get; set; }
 
-        // Helper method to check if a specific day of week is free
         public bool EsDiaLibre(DayOfWeek dia)
         {
             return dia switch
@@ -56,7 +54,6 @@ namespace BarberPro.Models
             };
         }
 
-        // Computed property for dropdown display (not mapped to DB)
         [NotMapped]
         public string DisplayText => FechaFin.HasValue 
             ? $"{Fecha?.ToString("dd/MM/yyyy") ?? "N/A"} - {FechaFin:dd/MM/yyyy} | {HoraInicio:hh\\:mm} a {HoraFin:hh\\:mm}"

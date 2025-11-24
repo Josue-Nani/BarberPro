@@ -9,19 +9,10 @@ public class BarberContext : DbContext
     {
     }
 
-    // Ejemplo de DbSet para reservas
     public DbSet<Reserva> Reservas { get; set; }
-
-    // DbSet para usuarios (tabla dbo.Usuarios)
     public DbSet<Usuario> Usuarios { get; set; }
-
-    // DbSet para roles
     public DbSet<Rol> Roles { get; set; }
-
-    // DbSet para clientes
     public DbSet<Cliente> Clientes { get; set; }
-
-    // Nuevos DbSet para funcionalidades de reservas
     public DbSet<Servicio> Servicios { get; set; }
     public DbSet<Barbero> Barberos { get; set; }
     public DbSet<HorarioBarbero> HorariosBarbero { get; set; }
@@ -53,7 +44,7 @@ public class BarberContext : DbContext
             entity.Property(e => e.Especialidades).HasColumnName("Especialidades").HasMaxLength(300);
             entity.Property(e => e.Disponibilidad).HasColumnName("Disponibilidad").HasMaxLength(200);
 
-            // configure relationship with Usuario
+            // CRÍTICO: Relación entre Barbero y Usuario (un barbero debe tener un usuario)
             entity.HasOne(b => b.Usuario)
                   .WithMany()
                   .HasForeignKey(b => b.UsuarioID)
@@ -95,7 +86,6 @@ public class BarberContext : DbContext
             entity.Property(e => e.FechaCreacion).HasColumnName("FechaCreacion");
         });
 
-        // Cliente entity configuration
         modelBuilder.Entity<Cliente>(entity =>
         {
             entity.ToTable("Clientes");
@@ -105,14 +95,13 @@ public class BarberContext : DbContext
             entity.Property(e => e.Direccion).HasColumnName("Direccion").HasMaxLength(250);
             entity.Property(e => e.FechaNacimiento).HasColumnName("FechaNacimiento").HasColumnType("date");
 
-            // relationship with Usuario
+            // CRÍTICO: Relación entre Cliente y Usuario (un cliente debe tener un usuario)
             entity.HasOne(c => c.Usuario)
                   .WithMany()
                   .HasForeignKey(c => c.UsuarioID)
                   .HasConstraintName("FK_Clientes_Usuarios");
         });
 
-        // SolicitudDisponibilidad entity configuration
         modelBuilder.Entity<SolicitudDisponibilidad>(entity =>
         {
             entity.ToTable("SolicitudesDisponibilidad");
@@ -128,12 +117,12 @@ public class BarberContext : DbContext
             entity.Property(e => e.AdminRespondenteID).HasColumnName("AdminRespondenteID");
             entity.Property(e => e.MotivoRechazo).HasColumnName("MotivoRechazo").HasMaxLength(500);
 
-            // relationships
             entity.HasOne(s => s.Barbero)
                   .WithMany()
                   .HasForeignKey(s => s.BarberoID)
                   .HasConstraintName("FK_Solicitudes_Barberos");
 
+            // CRÍTICO: DeleteBehavior.Restrict evita eliminación en cascada del admin
             entity.HasOne(s => s.AdminRespondente)
                   .WithMany()
                   .HasForeignKey(s => s.AdminRespondenteID)
@@ -141,7 +130,6 @@ public class BarberContext : DbContext
                   .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // ConfiguracionDisponibilidad entity configuration
         modelBuilder.Entity<ConfiguracionDisponibilidad>(entity =>
         {
             entity.ToTable("ConfiguracionesDisponibilidad");
@@ -162,12 +150,12 @@ public class BarberContext : DbContext
             entity.Property(e => e.FechaCreacion).HasColumnName("FechaCreacion").HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.AdminCreadorID).HasColumnName("AdminCreadorID");
 
-            // relationships
             entity.HasOne(c => c.Barbero)
                   .WithMany()
                   .HasForeignKey(c => c.BarberoID)
                   .HasConstraintName("FK_ConfiguracionDisponibilidad_Barberos");
 
+            // CRÍTICO: DeleteBehavior.Restrict evita eliminación en cascada del admin
             entity.HasOne(c => c.AdminCreador)
                   .WithMany()
                   .HasForeignKey(c => c.AdminCreadorID)

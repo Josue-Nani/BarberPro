@@ -49,7 +49,6 @@ public class LoginController : Controller
             }
 
             var hash = ComputeSha256Hash(contrasena);
-            // compare case-insensitive to tolerate hex case differences
             if (!string.Equals(user.ContrasenaHash, hash, StringComparison.OrdinalIgnoreCase))
             {
                 ViewBag.Error = "Contraseña incorrecta";
@@ -57,7 +56,6 @@ public class LoginController : Controller
                 return View();
             }
 
-            // get role name
             string roleName = null;
             try
             {
@@ -89,17 +87,15 @@ public class LoginController : Controller
 
             _logger.LogInformation("User {UserId} logged in with role {Role}", user.UsuarioID, roleName);
 
-            // If returnUrl is provided and local, redirect there
+            // CRÍTICO: Redirección basada en el rol del usuario
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
-            // If user is admin, go to admin users page
             if (!string.IsNullOrEmpty(roleName) && roleName.Equals("Administrador", StringComparison.OrdinalIgnoreCase))
             {
                 return Redirect("/Admin/Usuarios");
             }
 
-            // If user is barber, go to admin reservations page
             if (!string.IsNullOrEmpty(roleName) && roleName.Equals("Barbero", StringComparison.OrdinalIgnoreCase))
             {
                 return Redirect("/Admin/Reservas/Index");
@@ -123,13 +119,11 @@ public class LoginController : Controller
     [HttpPost]
     public async Task<IActionResult> Register(string nombreCompleto, string correo, string contrasena, string telefono)
     {
-        // Trim incoming values
         nombreCompleto = nombreCompleto?.Trim();
         correo = correo?.Trim();
         contrasena = contrasena?.Trim();
         telefono = telefono?.Trim();
 
-        // If binding left them empty, try to read raw form values for diagnosis
         var form = HttpContext.Request?.Form;
         if ((string.IsNullOrEmpty(nombreCompleto) || string.IsNullOrEmpty(correo) || string.IsNullOrEmpty(contrasena)) && form != null)
         {
@@ -138,7 +132,6 @@ public class LoginController : Controller
             if (string.IsNullOrEmpty(contrasena) && form.TryGetValue("contrasena", out var fCon)) contrasena = fCon.ToString();
             if (string.IsNullOrEmpty(telefono) && form.TryGetValue("telefono", out var fTel)) telefono = fTel.ToString().Trim();
 
-            // Log the raw form keys for debugging
             var keys = string.Join(",", form.Keys);
             _logger.LogInformation("Register POST raw form keys: {Keys}", keys);
         }
@@ -146,7 +139,6 @@ public class LoginController : Controller
         if (string.IsNullOrEmpty(nombreCompleto) || string.IsNullOrEmpty(correo) || string.IsNullOrEmpty(contrasena))
         {
             ViewBag.Error = "Todos los campos son obligatorios";
-            // Provide diagnostic info for debugging
             ViewBag.DebugInfo = new { nombreCompleto, correo, contrasenaPresent = !string.IsNullOrEmpty(contrasena), telefono };
             return View();
         }
@@ -180,7 +172,7 @@ public class LoginController : Controller
         _context.Usuarios.Add(user);
         await _context.SaveChangesAsync();
 
-        // Si el usuario tiene rol Cliente, crear también el registro en Clientes
+        // CRÍTICO: Cuando se registra un usuario con rol Cliente, también crear registro en tabla Clientes
         if (clienteRole != null && string.Equals(clienteRole.NombreRol, "Cliente", StringComparison.OrdinalIgnoreCase))
         {
             var cliente = new Cliente

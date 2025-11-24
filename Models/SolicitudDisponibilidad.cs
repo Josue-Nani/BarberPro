@@ -22,7 +22,7 @@ namespace BarberPro.Models
         public string Motivo { get; set; } = string.Empty;
         
         [StringLength(50)]
-        public string Estado { get; set; } = "Pendiente"; // Pendiente, Aprobada, Rechazada
+        public string Estado { get; set; } = "Pendiente";
         
         public DateTime FechaSolicitud { get; set; } = DateTime.Now;
         
@@ -33,7 +33,6 @@ namespace BarberPro.Models
         [StringLength(500)]
         public string? MotivoRechazo { get; set; }
         
-        // Navigation properties
         [ForeignKey("BarberoID")]
         public Barbero? Barbero { get; set; }
         

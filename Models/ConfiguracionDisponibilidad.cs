@@ -22,7 +22,6 @@ namespace BarberPro.Models
         [Display(Name = "Fecha Fin")]
         public DateTime FechaFin { get; set; }
         
-        // Días de la semana marcados como libres (true = día libre)
         [Display(Name = "Lunes")]
         public bool LunesLibre { get; set; }
         
@@ -44,7 +43,7 @@ namespace BarberPro.Models
         [Display(Name = "Domingo")]
         public bool DomingoLibre { get; set; }
         
-        // Horario de trabajo para generar horarios automáticamente
+        // CRÍTICO: Horario de trabajo usado para generar horarios automáticamente en días no libres
         [Display(Name = "Hora Inicio Trabajo")]
         public TimeSpan? HoraInicioTrabajo { get; set; }
         
@@ -55,14 +54,12 @@ namespace BarberPro.Models
         
         public int AdminCreadorID { get; set; }
         
-        // Navigation properties
         [ForeignKey("BarberoID")]
         public Barbero? Barbero { get; set; }
         
         [ForeignKey("AdminCreadorID")]
         public Usuario? AdminCreador { get; set; }
         
-        // Helper method to check if a specific day of week is free
         public bool EsDiaLibre(DayOfWeek dia)
         {
             return dia switch
@@ -78,7 +75,6 @@ namespace BarberPro.Models
             };
         }
         
-        // Helper to get a friendly list of free days
         [NotMapped]
         public string DiasLibresTexto
         {

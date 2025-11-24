@@ -20,15 +20,9 @@ namespace BarberPro.Controllers
         {
             try
             {
-                // Clear session
                 HttpContext.Session.Clear();
-
-                // Sign out from cookie authentication
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
                 _logger.LogInformation("User logged out successfully");
-
-                // Redirect to login page
                 return RedirectToAction("Login", "Login");
             }
             catch (Exception ex)

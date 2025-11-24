@@ -16,7 +16,6 @@ public class Cliente
     
     public DateTime? FechaNacimiento { get; set; }
     
-    // Navigation property
     [ForeignKey("UsuarioID")]
     public Usuario? Usuario { get; set; }
 }

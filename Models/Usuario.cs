@@ -27,7 +27,6 @@ public class Usuario
     [StringLength(300)]
     public string? FotoPerfil { get; set; }
 
-    // FK hacia Roles
     public int RolID { get; set; }
 
     [ForeignKey("RolID")]

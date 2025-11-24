@@ -9,7 +9,6 @@ namespace BarberPro.Models
         [Key]
         public int BarberoID { get; set; }
 
-        // FK a Usuarios
         public int UsuarioID { get; set; }
 
         [StringLength(300)]
@@ -18,11 +17,9 @@ namespace BarberPro.Models
         [StringLength(200)]
         public string? Disponibilidad { get; set; }
 
- 
         [ForeignKey("UsuarioID")]
         public Usuario? Usuario { get; set; }
 
-        
         public ICollection<HorarioBarbero>? Horarios { get; set; }
     }
 }

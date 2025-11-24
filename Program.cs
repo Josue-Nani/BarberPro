@@ -7,18 +7,13 @@ using BarberPro.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Habilitar logging en consola para depuración
 builder.Logging.AddConsole();
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
-// Add Razor Pages
 builder.Services.AddRazorPages();
-
-// Registrar IHttpContextAccessor para inyección en vistas/layout
 builder.Services.AddHttpContextAccessor();
 
-// Registrar DbContext con SQL Server
+// CRÍTICO: Configuración de la conexión a la base de datos SQL Server
 var connectionString = builder.Configuration.GetConnectionString("BarberiaReservas");
 if (!string.IsNullOrEmpty(connectionString))
 {
@@ -26,12 +21,10 @@ if (!string.IsNullOrEmpty(connectionString))
         options.UseSqlServer(connectionString));
 }
 
-// Register authorization handlers
-// AdminHandler requires BarberContext (scoped), so register it as scoped instead of singleton
+// CRÍTICO: Los handlers de autorización deben ser Scoped porque requieren BarberContext
 builder.Services.AddScoped<IAuthorizationHandler, AdminHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, BarberOrAdminHandler>();
 
-// Agregar soporte para sesiones
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -40,25 +33,21 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Authentication: Cookies
+// CRÍTICO: Configuración de autenticación mediante cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Login/Login";
         options.AccessDeniedPath = "/Login/Login";
-
-        // Development-friendly cookie settings
         options.Cookie.IsEssential = true;
         options.Cookie.HttpOnly = true;
-        // Use SecurePolicy Always in production to ensure cookies are secure; SameAsRequest for local development
         options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.Lax;
-
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
     });
 
-// Authorization: exigir usuario autenticado por defecto (se permite AllowAnonymous en las acciones públicas)
+// CRÍTICO: Por defecto todos los endpoints requieren autenticación (usar AllowAnonymous para páginas públicas)
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -71,7 +60,6 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -80,15 +68,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
-// Habilitar sesiones
 app.UseSession();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapRazorPages();
 
 app.MapControllerRoute(

@@ -13,7 +13,6 @@ namespace BarberPro.Models
         [StringLength(150, ErrorMessage = "El correo no puede exceder 150 caracteres")]
         public string Correo { get; set; }
 
-        // Allow any phone input, only enforce max length
         [StringLength(20, ErrorMessage = "El teléfono no puede exceder 20 caracteres")]
         public string? Telefono { get; set; }
 
